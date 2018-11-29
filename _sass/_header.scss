@@ -144,7 +144,6 @@ header {
                 opacity: 0;
                 transition: 0.2s cubic-bezier(0.5, 0.1, 0.51, 1.38);
                 ul {
-                    background: #222;
                     border-radius: 0 0 4px 4px;
                     box-shadow: 0px 3px 4px 1px rgba(0,0,0,0.5);
                     li {
@@ -161,8 +160,7 @@ header {
                             border: none;
                         }
                         >.active {
-                            color: #fff;
-                            background-color: #000;
+                            color: #0029CC;
                             box-shadow: none;
                         }
                     }
