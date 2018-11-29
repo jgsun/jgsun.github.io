@@ -192,9 +192,9 @@
             top: 76px;
             right: 2.5%;
             padding: 5px 10px;
-            color: #333;
+            color: #000; /* black */
             font-size: 15px;
-            background-color: #f8f8fd;
+            background-color: #DCDCDC; /* grey */
             box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.3), 0 0 30px rgba(10, 10, 0, 0.1) inset;
             opacity: 0.7;
             transition: 0.2s cubic-bezier(0.5, 0.1, 0.51, 1.38);
