@@ -6,9 +6,7 @@
 
     text-align: center;
     // margin-top: 50px;
-    background-color: #2b2b3c;
-    box-shadow: 0 -2px 4px 1px rgba(0,0,0,0.5);
-    color: #bbb;
+    color: #000;
     .wrapper {
         width: 1140px;
         margin: 0 auto;
@@ -22,10 +20,10 @@
         .contact {
             display: inline-block;
             a {
-                color: #ccc;
+                color: #0000FF; /* blue */
                 transition: 0.3s ease;
                 &:hover {
-                    color: #fff;
+                    color: #FF0000;/* red */
                 }
                 i {
                     margin: 0 5px;
@@ -38,10 +36,10 @@
         }
         .power {
             a {
-                color: #8F90C5;
+                color: #0000FF; /* blue */
                 transition: 0.3s ease;
                 &:hover {
-                    color: #fff;
+                    color: #FF0000;/* red */
                 }
             }
         }

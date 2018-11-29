@@ -23,16 +23,16 @@ pre {
          margin: 0;
          padding: 0;
         font-size: 13px;
-        color:#d1d1c9;
+        color:#000;
         border: none;
-        background-color: #272822
+        background-color: #DCDCDC
      }
 }
 
 .highlight {
     border-radius: 3px;
 
-    background: #272822;
+    background: #DCDCDC;
     .hll { background-color: #272822; }
     .c { color: #75715e } /* Comment */
     .err { color: #960050; background-color: #1e0010 } /* Error */
@@ -95,5 +95,5 @@ pre {
     .gh { } /* Generic Heading & Diff Header */
     .gu { color: #75715e; } /* Generic.Subheading & Diff Unified/Comment? */
     .gd { color: #f92672; } /* Generic.Deleted & Diff Deleted */
-    .gi { color: #a6e22e; } /* Generic.Inserted & Diff Inserted */
+    .gi { color: #0000FF; } /* Generic.Inserted & Diff Inserted blue */
 }

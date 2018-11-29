@@ -1,8 +1,6 @@
 header {
-    background: #222;
     height: 52px;
     color: #9d9d9d;
-    box-shadow: 0 2px 4px 1px rgba(0,0,0,0.5);
     margin-bottom: 20px;
     a {
         color: #9d9d9d;
@@ -17,11 +15,13 @@ header {
         margin: 0 auto;
         line-height: 52px;
         .brand {
-            font-size: 18px;
+            font-size: 26px;
+            color: #000;
         }
         small {
             margin-left: 26px;
-            font-size: 14px;
+            font-size: 18px;
+            color: #000
         }
         .menu{
             display: none;
@@ -42,17 +42,16 @@ header {
                         display: inline-block;
                         padding: 0 10px;
                         height: 52px;
+                        color: #000;
                         &:hover {
-                            background-color: #000;
+                            background-color: #9d9d9d;
                         }
                         i {
                             margin-right: 5px;
                         }
                     }
                     >.active {
-                        color: #fff;
-                        background-color: #000;
-                        box-shadow: 0 25px 25px -15px rgba(255,255,255,0.93);
+                        color: #0029CC;
                     }
                 }
             }
