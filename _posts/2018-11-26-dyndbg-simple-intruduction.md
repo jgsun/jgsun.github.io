@@ -164,7 +164,7 @@ void __dynamic_dev_dbg(struct _ddebug *descriptor,
 可见__dynamic_dev_dbg的printk的打印等级是KERN_DEBUG=7，所以要想在启动阶段看到pr_debug的输出，还需要在启动参数里面设置loglevel=8，将打印等级设置为8。比如在qemu启动参数里面设置：
 `-append "root=/dev/ram0 console=ttyAMA0 kmemleak=on loglevel=8" `
 ## 如何boot阶段打开动态打印？
-###方法一：在需要打印的源码开头定义DEBUG宏
+### 方法一：在需要打印的源码开头定义DEBUG宏
 如在drivers/of/platform.c文件开头定义，注意一定要在#include之前定义才能生效。
 
 
