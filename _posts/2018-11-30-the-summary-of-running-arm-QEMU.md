@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "使用QEMU运行arm u-boot/linux小结"
+title:  "QEMU模拟arm u-boot/linux小结"
 categories: virtulize
 tags: arm QEMU linux u-boot buildroot
 author: jgsun
@@ -67,7 +67,7 @@ CPU: ARMv7 Processor [410fc090] revision 0 (ARMv7), cr=10c5387d
 CPU: PIPT / VIPT nonaliasing data cache, VIPT nonaliasing instruction cache
 OF: fdt: Machine model: V2P-CA9
 ```
-##改用initramfs之后的启动命令log
+## 改用initramfs之后的启动命令log
 ```
 cd /repo/training/qemu/vexpress-a9
 qemu-system-arm -M vexpress-a9 -smp 4 -m 1024 -kernel uImage -dtb vexpress-v2p-ca9.dtb -append "console=ttyAMA0,115200 root=/dev/ram0" -net nic,model=lan9118 -net user -nographic
@@ -341,6 +341,7 @@ sudo umount tmpfs
 2.QEMU带-sd参数启动u-boot
 `sudo qemu-system-arm -M vexpress-a9 -m 1024 -kernel output/build/uboot-2018.05/u-boot  -nographic -sd output/image/sd.ext2`
 ext2ls 命令显示SD卡内文件内容：
+
 ```
 => ext2ls mmc 0
 <DIR> 1024 .
@@ -349,7 +350,9 @@ ext2ls 命令显示SD卡内文件内容：
          6891184 uImage
            14318 vexpress-v2p-ca9.dtb
 ```
+
 3.ext2load命令从SD卡加载uImage和dtb到内存，设置bootargs之后用bootm启动linux：
+
 ```
 => ext2load mmc 0 0x60003000 uImage
 6891184 bytes read in 1188 ms (5.5 MiB/s)
@@ -374,7 +377,9 @@ dd if=vexpress-v2p-ca9.dtb of=flash.bin conv=notrunc bs=4096//copy dtb at the be
 dd if=uImage of=flash.bin conv=notrunc bs=4096 seek=256//copy uImage at 1M from the beginning
 ```
 2.QEMU带-pflash参数启动u-boot
+
 `sudo qemu-system-arm -M vexpress-a9 -m 1024 -kernel output/build/uboot-2018.05/u-boot -nographic -pflash output/image/flash.bin`
+
 3.cp从flash拷贝linux和dtb到内存，设置bootargs之后用bootm启动linux：
 ```
 => cp.b 0x0 0x60900000 0x100000
@@ -391,7 +396,7 @@ dd if=uImage of=flash.bin conv=notrunc bs=4096 seek=256//copy uImage at 1M from 
 ## Flattened Device Tree blob at 60900000
 ```
 # 参考资料
-[用Qemu模拟vexpress-a9 --- 配置 qemu 的网络功能](http://www.cnblogs.com/pengdonglin137/p/5023340.html)
-[用Qemu模拟vexpress-a9 （五） --- u-boot引导kernel，device tree的使用](https://www.cnblogs.com/pengdonglin137/p/5023961.html)
-[ubuntu下使用qemu模拟ARM(七)-----uboot从sd卡启动内核](https://blog.csdn.net/rfidunion/article/details/55254424)
-[Booting Linux with U-Boot on QEMU ARM](https://balau82.wordpress.com/2010/04/12/booting-linux-with-u-boot-on-qemu-arm/)
+* [用Qemu模拟vexpress-a9 --- 配置 qemu 的网络功能](http://www.cnblogs.com/pengdonglin137/p/5023340.html)
+* [用Qemu模拟vexpress-a9 （五） --- u-boot引导kernel，device tree的使用](https://www.cnblogs.com/pengdonglin137/p/5023961.html)
+* [ubuntu下使用qemu模拟ARM(七)-----uboot从sd卡启动内核](https://blog.csdn.net/rfidunion/article/details/55254424)
+* [Booting Linux with U-Boot on QEMU ARM](https://balau82.wordpress.com/2010/04/12/booting-linux-with-u-boot-on-qemu-arm/)
