@@ -10,7 +10,7 @@ author: jgsun
 {:toc}
 
 
-## 概述
+# 概述
 
 dynamic debug (dyndbg)是内核提供的一个调试功能，允许动态的开关内核打印输出，包含的API：pr_debug()、dev_dbg() 、print_hex_dump_debug()、rint_hex_dump_bytes()和netdev_dbg等。
 dynamic debug通过设置<debugfs>/dynamic_debug/control文件来控制内核输出，有多种匹配的条件：文件名，函数名，行号，模块名和输出字符的格式；
@@ -48,13 +48,13 @@ t Include thread ID in messages not generated from interrupt context
 _ No flags are set. (Or'd with others on input)
 ```
 详见内核文档[Documentation/admin-guide/dynamic-debug-howto.rst](https://github.com/torvalds/linux/blob/master/Documentation/admin-guide/dynamic-debug-howto.rst)
-## 内核配置
+# 内核配置
 内核配置：CONFIG_DYNAMIC_DEBUG=y
 
 ![image](/images/posts/debug/dyndbg_menuconfig.png)
 
-## 代码解读
-### pr_debug(include/linux/printk.h)
+# 代码解读
+## pr_debug(include/linux/printk.h)
 pr_debug的定义在文件include/linux/printk.h，从pr_debug的源码注释建议：如果写驱动，请用dev_dbg。
 ```
 /* If you are writing a driver, please use dev_dbg instead */
@@ -73,7 +73,7 @@ pr_debug的定义在文件include/linux/printk.h，从pr_debug的源码注释建
 #endif
 ```
 
-### dev_dbg(include/linux/device.h)
+## dev_dbg(include/linux/device.h)
 dev_debug的定义在文件include/linux/device.h
 ```
 #if defined(CONFIG_DYNAMIC_DEBUG)
@@ -100,7 +100,7 @@ dev_debug的定义在文件include/linux/device.h
 | CONFIG_DYNAMIC_DEBUG=n DEBUG=y | 调用printk，打印等级是KERN_DEBUG=7，所以要将打印等级设置为8（echo 8 > /proc/sys/kernel/printk）才能看到输出 |
 | CONFIG_DYNAMIC_DEBUG=n DEBUG=n | 不打印                                                       |
 
-## 实现机制
+# 实现机制
 首先看pr_debug宏展开情况：
 * 原始： pr_debug("hello")
 * 展开： dynamic_pr_debug("hello")
@@ -163,12 +163,12 @@ void __dynamic_dev_dbg(struct _ddebug *descriptor,
 ```
 可见__dynamic_dev_dbg的printk的打印等级是KERN_DEBUG=7，所以要想在启动阶段看到pr_debug的输出，还需要在启动参数里面设置loglevel=8，将打印等级设置为8。比如在qemu启动参数里面设置：
 `-append "root=/dev/ram0 console=ttyAMA0 kmemleak=on loglevel=8" `
-## 如何boot阶段打开动态打印？
-### 方法一：在需要打印的源码开头定义DEBUG宏
+# 如何boot阶段打开动态打印？
+## 方法一：在需要打印的源码开头定义DEBUG宏
 如在drivers/of/platform.c文件开头定义，注意一定要在#include之前定义才能生效。
 
 
-### 方法二：在启动参数添加dyndbg="QUERY"，如qemu启动参数：
+## 方法二：在启动参数添加dyndbg="QUERY"，如qemu启动参数：
 `-append "root=/dev/ram0 console=ttyAMA0 kmemleak=on loglevel=8 dyndbg=\"file drivers/of/irq.c +p\"" \`
 上面两种方法都需要添加boot参数`loglevel=8`，将打印等级调整到8。
 # 使用实例
@@ -197,7 +197,7 @@ shell@pxa1956dkb:/ # [ 1416.261763] c5 2680 (ciImsDataInitTa) MSOCK: msend: port
 [ 1421.531695] c5 2678 (ciCsdDataInitTa) MSOCK: msend: port 6 xmit error.
 [ 1422.281927] c7 2680 (ciImsDataInitTa) MSOCK: msend: port 9 xmit error.
 ```
-### 仅定义DEBUG宏
+## 仅定义DEBUG宏
 以dirvers/of/驱动为例，先定义DEBUG选项，然后在menuconfig选择这个选项。
 还要通过printk的procfs接口调整打印级别:
 `echo 8 > /proc/sys/kernel/printk`
@@ -228,7 +228,7 @@ obj-y = base.o device.o platform.o
 obj-$(CONFIG_OF_FLATTREE) += fdt.o
 obj-$(CONFIG_OF_PROMTREE) += pdt.o
 ```
-## 参考文档
+# 参考文档
 * [Documentation/admin-guide/dynamic-debug-howto.rst](https://github.com/torvalds/linux/blob/master/Documentation/admin-guide/dynamic-debug-howto.rst)
 * [pr_debug、dev_dbg等动态调试一](http://www.cnblogs.com/pengdonglin137/p/4621576.html)
 * [pr_debug、dev_dbg等动态调试二](http://www.cnblogs.com/pengdonglin137/p/4622238.html)
