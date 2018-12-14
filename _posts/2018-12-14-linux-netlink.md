@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Ç³Îölinux netlink"
+title:  "æµ…ælinux netlink"
 categories: network
 tags: linux netlink
 author: jgsun
@@ -9,10 +9,10 @@ author: jgsun
 * content
 {:toc}
 
-# ¸ÅÊö
-±¾ÎÄ»ùÓÚlinux 4.20¡£
-netlinkĞ­ÒéÊÇÒ»ÖÖ½ø³Ì¼äÍ¨ĞÅ£¨Inter Process Communication,IPC£©»úÖÆ£¬ÎªµÄÓÃ»§¿Õ¼äºÍÄÚºË¿Õ¼äÒÔ¼°ÄÚºËµÄÄ³Ğ©²¿·ÖÖ®¼äÌá¹©ÁËË«ÏòÍ¨ĞÅ·½·¨¡£
-±¾ÎÄ½²ÊöÁËlinuxÄÚºËÖĞnetlinkµÄ³õÊ¼»¯¼°Í¨ĞÅ¹ı³Ì£¬»¹½éÉÜÁËÍ¨ÓÃnetlinkÌ×½Ó×Ö¡£
+# æ¦‚è¿°
+æœ¬æ–‡åŸºäºlinux 4.20ã€‚
+netlinkåè®®æ˜¯ä¸€ç§è¿›ç¨‹é—´é€šä¿¡ï¼ˆInter Process Communication,IPCï¼‰æœºåˆ¶ï¼Œä¸ºçš„ç”¨æˆ·ç©ºé—´å’Œå†…æ ¸ç©ºé—´ä»¥åŠå†…æ ¸çš„æŸäº›éƒ¨åˆ†ä¹‹é—´æä¾›äº†åŒå‘é€šä¿¡æ–¹æ³•ã€‚
+æœ¬æ–‡è®²è¿°äº†linuxå†…æ ¸ä¸­netlinkçš„åˆå§‹åŒ–åŠé€šä¿¡è¿‡ç¨‹ï¼Œè¿˜ä»‹ç»äº†é€šç”¨netlinkå¥—æ¥å­—ã€‚
 
 
 
@@ -22,51 +22,51 @@ netlinkĞ­ÒéÊÇÒ»ÖÖ½ø³Ì¼äÍ¨ĞÅ£¨Inter Process Communication,IPC£©»úÖÆ£¬ÎªµÄÓÃ»§¿Õ¼ä
 
 
 
-# netlink³õÊ¼»¯
-ÄÚºËÆô¶¯½×¶Î£¬netlink×ÓÏµÍ³³õÊ¼»¯´Ócore_initcall(netlink_proto_init)¿ªÊ¼¡£
+# netlinkåˆå§‹åŒ–
+å†…æ ¸å¯åŠ¨é˜¶æ®µï¼Œnetlinkå­ç³»ç»Ÿåˆå§‹åŒ–ä»core_initcall(netlink_proto_init)å¼€å§‹ã€‚
 1. proto_register(&netlink_proto, 0)
-×¢Òâ£¬ÕâÀïµÚ¶ş¸ö²ÎÊıÊÇ0£¬±íÊ¾²»½øĞĞalloc_slab£¬ËµÃ÷ÆäÃ»ÓĞ×¨ÃÅ¶¨Òåslab cache¡£
-×¢²ánetlink´«Êä²ãĞ­ÒéÊµÀıº¯Êı¿é±äÁ¿netlink_protoµ½ÄÚºËÍøÂçĞ­ÒéÕ»ÖĞ£º¼Óµ½proto_listÁ´±í£»
-ºÍtcp_prot²»Í¬£¬netlink_protoÃ»ÓĞ¶¨ÒåĞ­ÒéÏà¹ØµÄÊÕ·¢º¯Êı£¬ÕâÓënetlinkµÄÊµÏÖÓĞ¹Ø£¨£¿£¿´ıÍêÉÆ£©£¬Ö»Ìá¹©Ò»¸öÓĞÓÃµÄ³ÉÔ±obj_size = sizeof(struct netlink_sock)ÔÚ´´½¨ÓÃ»§¿Õ¼änetlinkÌ×½Ó×ÖµÄÊ±ºòÓÃ»§·ÖÅäÌ×½Ó×Ö¶ÔÏó¡£
+æ³¨æ„ï¼Œè¿™é‡Œç¬¬äºŒä¸ªå‚æ•°æ˜¯0ï¼Œè¡¨ç¤ºä¸è¿›è¡Œalloc_slabï¼Œè¯´æ˜å…¶æ²¡æœ‰ä¸“é—¨å®šä¹‰slab cacheã€‚
+æ³¨å†Œnetlinkä¼ è¾“å±‚åè®®å®ä¾‹å‡½æ•°å—å˜é‡netlink_protoåˆ°å†…æ ¸ç½‘ç»œåè®®æ ˆä¸­ï¼šåŠ åˆ°proto_listé“¾è¡¨ï¼›
+å’Œtcp_protä¸åŒï¼Œnetlink_protoæ²¡æœ‰å®šä¹‰åè®®ç›¸å…³çš„æ”¶å‘å‡½æ•°ï¼Œè¿™ä¸netlinkçš„å®ç°æœ‰å…³ï¼ˆï¼Ÿï¼Ÿå¾…å®Œå–„ï¼‰ï¼Œåªæä¾›ä¸€ä¸ªæœ‰ç”¨çš„æˆå‘˜obj_size = sizeof(struct netlink_sock)åœ¨åˆ›å»ºç”¨æˆ·ç©ºé—´netlinkå¥—æ¥å­—çš„æ—¶å€™ç”¨æˆ·åˆ†é…å¥—æ¥å­—å¯¹è±¡ã€‚
 `list_add(&prot->node, &proto_list)`
-2. ³õÊ¼»¯Êı×énl_table
-Ã¿¸önetlinkĞ­Òé´Ø¶ÔÓ¦nl_tableÊı×éµÄÒ»¸öÌõÄ¿£¨struct netlink_tableÀàĞÍ£©£¬Ò»¹²32¸ö¡£nl_tableÊÇnetlink×ÓÏµÍ³µÄÊµÏÖµÄÒ»¸ö¹Ø¼ü±í½á¹¹£¬ÆäÊµÊÇÒ»¸öhashÁ´½á¹¹£¬Ö»ÒªÓĞnetlinkÌ×½Ó×ÖĞÎ³É£¬²»¹ÜÊÇÄÚºËµÄ»¹ÊÇÓÃ»§¿Õ¼äµÄ£¬¶¼Òªµ÷ÓÃnetlink_insert½«netlinkÌ×½Ó×Ö±¾ÉíºÍËüµÄĞÅÏ¢Ò»²¢²åÈëµ½Õâ¸öÁ´±í½á¹¹ÖĞ£¨ÓÃ»§Ì¬Ì×½Ó×ÖÔÚbindÏµÍ³µ÷ÓÃµÄÊ±ºòµ÷ÓÃnetlink_insert²åÈënl_table£»ÄÚºËÌ×½Ó×ÖÊÇÔÚ´´½¨µÄÊ±ºòµ÷ÓÃnetlink_insert²åÈënl_table£©£¬È»ºóÔÚ·¢ËÍÊ±£¬Ö»Òªµ÷ÓÃnetlink_lookup±éÀúÕâ¸ö±í¾Í¿ÉÒÔ¿ìËÙ¶¨Î»Òª·¢ËÍµÄÄ¿±êÌ×½Ó×Ö¡£
+2. åˆå§‹åŒ–æ•°ç»„nl_table
+æ¯ä¸ªnetlinkåè®®ç°‡å¯¹åº”nl_tableæ•°ç»„çš„ä¸€ä¸ªæ¡ç›®ï¼ˆstruct netlink_tableç±»å‹ï¼‰ï¼Œä¸€å…±32ä¸ªã€‚nl_tableæ˜¯netlinkå­ç³»ç»Ÿçš„å®ç°çš„ä¸€ä¸ªå…³é”®è¡¨ç»“æ„ï¼Œå…¶å®æ˜¯ä¸€ä¸ªhashé“¾ç»“æ„ï¼Œåªè¦æœ‰netlinkå¥—æ¥å­—å½¢æˆï¼Œä¸ç®¡æ˜¯å†…æ ¸çš„è¿˜æ˜¯ç”¨æˆ·ç©ºé—´çš„ï¼Œéƒ½è¦è°ƒç”¨netlink_insertå°†netlinkå¥—æ¥å­—æœ¬èº«å’Œå®ƒçš„ä¿¡æ¯ä¸€å¹¶æ’å…¥åˆ°è¿™ä¸ªé“¾è¡¨ç»“æ„ä¸­ï¼ˆç”¨æˆ·æ€å¥—æ¥å­—åœ¨bindç³»ç»Ÿè°ƒç”¨çš„æ—¶å€™è°ƒç”¨netlink_insertæ’å…¥nl_tableï¼›å†…æ ¸å¥—æ¥å­—æ˜¯åœ¨åˆ›å»ºçš„æ—¶å€™è°ƒç”¨netlink_insertæ’å…¥nl_tableï¼‰ï¼Œç„¶ååœ¨å‘é€æ—¶ï¼Œåªè¦è°ƒç”¨netlink_lookupéå†è¿™ä¸ªè¡¨å°±å¯ä»¥å¿«é€Ÿå®šä½è¦å‘é€çš„ç›®æ ‡å¥—æ¥å­—ã€‚
 3. sock_register(&netlink_family_ops)
-Ìí¼ÓÌ×½Ó×Ö²ãĞ­Òéhandler£¬´´½¨ÓÃ»§¿Õ¼änetlinkÌ×½Ó×ÖµÄÊ±ºò½«µ÷ÓÃnetlink_family_opsÌá¹©µÄ·½·¨netlink_create¡£
+æ·»åŠ å¥—æ¥å­—å±‚åè®®handlerï¼Œåˆ›å»ºç”¨æˆ·ç©ºé—´netlinkå¥—æ¥å­—çš„æ—¶å€™å°†è°ƒç”¨netlink_family_opsæä¾›çš„æ–¹æ³•netlink_createã€‚
 4. rtnetlink_init
-£¨1£©´´½¨rtnetlinkÄÚºËÄÚºËÌ×½Ó×Ö
-rtnetlinkÌ×½Ó×Ö×¨ÓÃÓÚÁªÍøµÄnetlinkÌ×½Ó×Ö£¬ÓÃÓÚÂ·ÓÉÏûÏ¢¡¢ÁÚ½ÓÏûÏ¢¡¢Á´Â·ÏûÏ¢ºÍÆäËûÍøÂç×ÓÏµÍ³ÏûÏ¢¡£
-ÔÚ´´½¨ÄÚºËÌ×½Ó×ÖÖ®ºó£¬µ÷ÓÃnetlink_insert(sk, 0)½«´ËÌ×½Ó×Ö²åÈëµ½nl_table£¬²Å¿ÉÒÔ½ÓÊÕÓÃ»§¿Õ¼ä·¢ËÍµÄnetlinkÏûÏ¢¡£
-netlink_kernel_cfg½á¹¹input»Øµ÷º¯Êırtnetlink_rcv£¬½«¸³Öµ¸ønetlink_sockµÄ³ÉÔ±netlink_rcv£¬ÓÃÓÚ½ÓÊÕ´ÓÓÃ»§¿Õ¼ä·¢ËÍµÄÊı¾İ£»
-netlink_kernel_create´´½¨ÄÚºËÌ×½Ó×Ö²¢±£´æÔÚÍøÂçÃüÃû¿Õ¼ä¶ÔÏónetµÄ±äÁ¿rtnl
+ï¼ˆ1ï¼‰åˆ›å»ºrtnetlinkå†…æ ¸å†…æ ¸å¥—æ¥å­—
+rtnetlinkå¥—æ¥å­—ä¸“ç”¨äºè”ç½‘çš„netlinkå¥—æ¥å­—ï¼Œç”¨äºè·¯ç”±æ¶ˆæ¯ã€é‚»æ¥æ¶ˆæ¯ã€é“¾è·¯æ¶ˆæ¯å’Œå…¶ä»–ç½‘ç»œå­ç³»ç»Ÿæ¶ˆæ¯ã€‚
+åœ¨åˆ›å»ºå†…æ ¸å¥—æ¥å­—ä¹‹åï¼Œè°ƒç”¨netlink_insert(sk, 0)å°†æ­¤å¥—æ¥å­—æ’å…¥åˆ°nl_tableï¼Œæ‰å¯ä»¥æ¥æ”¶ç”¨æˆ·ç©ºé—´å‘é€çš„netlinkæ¶ˆæ¯ã€‚
+netlink_kernel_cfgç»“æ„inputå›è°ƒå‡½æ•°rtnetlink_rcvï¼Œå°†èµ‹å€¼ç»™netlink_sockçš„æˆå‘˜netlink_rcvï¼Œç”¨äºæ¥æ”¶ä»ç”¨æˆ·ç©ºé—´å‘é€çš„æ•°æ®ï¼›
+netlink_kernel_createåˆ›å»ºå†…æ ¸å¥—æ¥å­—å¹¶ä¿å­˜åœ¨ç½‘ç»œå‘½åç©ºé—´å¯¹è±¡netçš„å˜é‡rtnl
 ```
 register_pernet_subsys(&rtnetlink_net_ops)
     rtnetlink_net_init
         sk = netlink_kernel_create(net, NETLINK_ROUTE, &cfg)
             __netlink_create(net, sock, cb_mutex, unit, 1)
-            netlink_insert(sk, 0) //½«´ËÄÚºËÌ×½Ó×Ö²åÈënl_table±í£¬´ËÌ×½Ó×Ö²Å¿ÉÒÔ½ÓÊÕÓÃ»§¿Õ¼ä·¢ËÍµÄnetlinkÏûÏ¢
-            nlk_sk(sk)->netlink_rcv = cfg->input //netlink_rcv½«½ÓÊÕ´ÓÓÃ»§¿Õ¼ä»òÕßÄÚºË¿Õ¼ä·¢ËÍµÄÊı¾İ
+            netlink_insert(sk, 0) //å°†æ­¤å†…æ ¸å¥—æ¥å­—æ’å…¥nl_tableè¡¨ï¼Œæ­¤å¥—æ¥å­—æ‰å¯ä»¥æ¥æ”¶ç”¨æˆ·ç©ºé—´å‘é€çš„netlinkæ¶ˆæ¯
+            nlk_sk(sk)->netlink_rcv = cfg->input //netlink_rcvå°†æ¥æ”¶ä»ç”¨æˆ·ç©ºé—´æˆ–è€…å†…æ ¸ç©ºé—´å‘é€çš„æ•°æ®
             nl_table[unit].bind = cfg->bind
-        net->rtnl = sk //½«´ËÌ×½Ó×Ö¸³Öµ¸øÍøÂçÃüÃû¿Õ¼äµÄ±äÁ¿rtnl
+        net->rtnl = sk //å°†æ­¤å¥—æ¥å­—èµ‹å€¼ç»™ç½‘ç»œå‘½åç©ºé—´çš„å˜é‡rtnl
 ```
-£¨2£©µ÷ÓÃrtnl_registerÎªnetlinkÏûÏ¢×¢²á»Øµ÷º¯Êı£¬Èçrtnl_register(PF_UNSPEC, RTM_GETLINK, rtnl_newlink, NULL, 0)ÏûÏ¢£¬½«rtnl_newlink×÷ÎªRTM_GETLINKÏûÏ¢µÄrtnl_dump_ifinfo»Øµ÷º¯Êı¼ÓÈëµ½rtnl_msg_handlers±íÏàÓ¦µÄÌõÄ¿ÖĞ£»ÔÚNETLINK_ROUTEÄÚºËÌ×½Ó×Ö½ÓÊÕÓÃ»§¿Õ¼äÏûÏ¢µÄ´¦Àíº¯Êırtnetlink_rcvÖĞ£¬½«¸ù¾İÏûÏ¢ÀàĞÍRTM_GETLINK´Órtnl_msg_handlers»ñÈ¡Æä´¦Àíº¯Êırtnl_newlink»òÕßrtnl_dump_ifinfo¡£
+ï¼ˆ2ï¼‰è°ƒç”¨rtnl_registerä¸ºnetlinkæ¶ˆæ¯æ³¨å†Œå›è°ƒå‡½æ•°ï¼Œå¦‚rtnl_register(PF_UNSPEC, RTM_GETLINK, rtnl_newlink, NULL, 0)æ¶ˆæ¯ï¼Œå°†rtnl_newlinkä½œä¸ºRTM_GETLINKæ¶ˆæ¯çš„rtnl_dump_ifinfoå›è°ƒå‡½æ•°åŠ å…¥åˆ°rtnl_msg_handlersè¡¨ç›¸åº”çš„æ¡ç›®ä¸­ï¼›åœ¨NETLINK_ROUTEå†…æ ¸å¥—æ¥å­—æ¥æ”¶ç”¨æˆ·ç©ºé—´æ¶ˆæ¯çš„å¤„ç†å‡½æ•°rtnetlink_rcvä¸­ï¼Œå°†æ ¹æ®æ¶ˆæ¯ç±»å‹RTM_GETLINKä»rtnl_msg_handlersè·å–å…¶å¤„ç†å‡½æ•°rtnl_newlinkæˆ–è€…rtnl_dump_ifinfoã€‚
 ```
 rtnl_register(PF_UNSPEC, RTM_GETLINK, rtnl_getlink,
        rtnl_dump_ifinfo, 0);
 ```
-# NETLINK_ROUTEÌ×½Ó×Ö
-iprout2¹¤¾ß¼¯ipÃüÁî²ÉÓÃNETLINK_ROUTEÌ×½Ó×ÖÀ´ÓëÄÚºËÍ¨ĞÅ£¬»ñÈ¡ÍøÂç×ÓÏµÍ³µÄÂ·ÓÉ£¬Á´Â·µÈĞÅÏ¢£»ip -s link ls eth0»ñÈ¡eth0ÍøÂç½Ó¿ÚÍ³¼ÆĞÅÏ¢£¬ÆäÊä³ö£º
+# NETLINK_ROUTEå¥—æ¥å­—
+iprout2å·¥å…·é›†ipå‘½ä»¤é‡‡ç”¨NETLINK_ROUTEå¥—æ¥å­—æ¥ä¸å†…æ ¸é€šä¿¡ï¼Œè·å–ç½‘ç»œå­ç³»ç»Ÿçš„è·¯ç”±ï¼Œé“¾è·¯ç­‰ä¿¡æ¯ï¼›ip -s link ls eth0è·å–eth0ç½‘ç»œæ¥å£ç»Ÿè®¡ä¿¡æ¯ï¼Œå…¶è¾“å‡ºï¼š
 ![image](/images/posts/network/netlink/ip_s_link_ls_eth0.png)
 
-> iproute2Ô´Âëgit://git.kernel.org/pub/scm/network/iproute2/iproute2.git
+> iproute2æºç git://git.kernel.org/pub/scm/network/iproute2/iproute2.git
 
-ÎÒÃÇ½«ÒÔÕâÌõÃüÁîÎªÀı£¬Î§ÈÆÏÂÍ¼À´½²ÊöNETLINK_ROUTEÌ×½Ó×Ö´Ó³õÊ¼»¯£¬´´½¨socket£¬bind£¬sendmsgµ½recvmsgµÄÄÚºË¿Õ¼äÈ«¹ı³Ì¡£
+æˆ‘ä»¬å°†ä»¥è¿™æ¡å‘½ä»¤ä¸ºä¾‹ï¼Œå›´ç»•ä¸‹å›¾æ¥è®²è¿°NETLINK_ROUTEå¥—æ¥å­—ä»åˆå§‹åŒ–ï¼Œåˆ›å»ºsocketï¼Œbindï¼Œsendmsgåˆ°recvmsgçš„å†…æ ¸ç©ºé—´å…¨è¿‡ç¨‹ã€‚
 ![image](/images/posts/network/netlink/netlink_route.png)
 
-´ÓÉÏÍ¼¿ÉÒÔ¿´³ö£¬NETLINK_ROUTEÌ×½Ó×ÖÍ¨ĞÅ¹ı³Ì×ÜÌåÎ§ÈÆÁ½¸öÊı×éÕ¹¿ª£¬¼´nl_tableºÍrtnl_msg_handlers£¬Í¼ÖĞ±êÊ¶³öÕû¸ö¹ı³ÌµÄĞòºÅ¡£
-³õÊ¼»¯¹ı³ÌÒÑ¾­ÔÚÉÏÃæ¡°netlink³õÊ¼»¯¡±²¿·Ö½²¹ıÁË£¬²»ÔÙÖØ¸´¡£
-## socketÏµÍ³µ÷ÓÃ
-socketÏµÍ³µ÷ÓÃ½«´´½¨ÓÃ»§¿Õ¼änetlinkÌ×½Ó×Ö£¬Æädomain²ÎÊıAF_NETLINK£¬ÊÇprotocolÊÇNETLINK_ROUTE¡£
+ä»ä¸Šå›¾å¯ä»¥çœ‹å‡ºï¼ŒNETLINK_ROUTEå¥—æ¥å­—é€šä¿¡è¿‡ç¨‹æ€»ä½“å›´ç»•ä¸¤ä¸ªæ•°ç»„å±•å¼€ï¼Œå³nl_tableå’Œrtnl_msg_handlersï¼Œå›¾ä¸­æ ‡è¯†å‡ºæ•´ä¸ªè¿‡ç¨‹çš„åºå·ã€‚
+åˆå§‹åŒ–è¿‡ç¨‹å·²ç»åœ¨ä¸Šé¢â€œnetlinkåˆå§‹åŒ–â€éƒ¨åˆ†è®²è¿‡äº†ï¼Œä¸å†é‡å¤ã€‚
+## socketç³»ç»Ÿè°ƒç”¨
+socketç³»ç»Ÿè°ƒç”¨å°†åˆ›å»ºç”¨æˆ·ç©ºé—´netlinkå¥—æ¥å­—ï¼Œå…¶domainå‚æ•°AF_NETLINKï¼Œæ˜¯protocolæ˜¯NETLINK_ROUTEã€‚
 ```
 rtnl_open(&rth, 0)
     rtnl_open_byproto(rth, subscriptions, NETLINK_ROUTE)
@@ -78,19 +78,19 @@ rtnl_open(&rth, 0)
                 unbind = nl_table[protocol].unbind
                 __netlink_create(net, sock, cb_mutex, protocol, kern)
                     sock->ops = &netlink_ops
-                    sk_alloc(net, PF_NETLINK, GFP_KERNEL, &netlink_proto, kern) //·ÖÅästruct netlink_sockÌ×½Ó×Ö£¨¼Ì³ĞÍ¨ÓÃÌ×½Ó×Östruct sock£©
+                    sk_alloc(net, PF_NETLINK, GFP_KERNEL, &netlink_proto, kern) //åˆ†é…struct netlink_sockå¥—æ¥å­—ï¼ˆç»§æ‰¿é€šç”¨å¥—æ¥å­—struct sockï¼‰
                     sock_init_data(sock, sk)
-                        sk->sk_rcvbuf	=	sysctl_rmem_default //Ì×½Ó×Ö³õÊ¼»¯Ê±½«/proc/sys/net/core/rmem_defaultÎªÆä³õÊ¼½ÓÊÕ»º´æ£¬ÊÓÇé¿öºóÃæ»áÓÃsetsockoptÖØĞÂµ÷Õû
+                        sk->sk_rcvbuf	=	sysctl_rmem_default //å¥—æ¥å­—åˆå§‹åŒ–æ—¶å°†/proc/sys/net/core/rmem_defaultä¸ºå…¶åˆå§‹æ¥æ”¶ç¼“å­˜ï¼Œè§†æƒ…å†µåé¢ä¼šç”¨setsockopté‡æ–°è°ƒæ•´
                         sk->sk_sndbuf	=	sysctl_wmem_default
-                        sk->sk_data_ready	=	sock_def_readable //µ±Ì×½Ó×ÖµÄsk_receive_queueÊÕµ½°ü£¬sock_def_readable½«»½ĞÑrecvmsgº¯Êı½ÓÊÕ¡£
-        setsockopt(rth->fd, SOL_SOCKET, SO_SNDBUF //ÉèÖÃÌ×½Ó×Ö·¢ËÍ»º´æ´óĞ¡
-        setsockopt(rth->fd, SOL_SOCKET, SO_RCVBUF //ÉèÖÃÌ×½Ó×Ö½ÓÊÕ»º´æ´óĞ¡
+                        sk->sk_data_ready	=	sock_def_readable //å½“å¥—æ¥å­—çš„sk_receive_queueæ”¶åˆ°åŒ…ï¼Œsock_def_readableå°†å”¤é†’recvmsgå‡½æ•°æ¥æ”¶ã€‚
+        setsockopt(rth->fd, SOL_SOCKET, SO_SNDBUF //è®¾ç½®å¥—æ¥å­—å‘é€ç¼“å­˜å¤§å°
+        setsockopt(rth->fd, SOL_SOCKET, SO_RCVBUF //è®¾ç½®å¥—æ¥å­—æ¥æ”¶ç¼“å­˜å¤§å°
         getsockname(rth->fd, (struct sockaddr *)&rth->local
                     init_waitqueue_head(&nlk->wait)
 ```
 
-## bindÏµÍ³µ÷ÓÃ
-localÊÇ±¾µØsocketµØÖ·£¨struct sockaddr_nl½á¹¹£©,Æänl_pidÉèÖÃÎª0£¨Í¨³£Ó¦¸ÃÎªµ±Ç°½ø³Ìid£©£¬ÉèÖÃÎª0Ò²Ã»ÓĞ¹ØÏµ£¬ºóÃæbindÏµÍ³µ÷ÓÃ´ËsocketµÄops£¨netlink_ops£¬ÔÚsocketÏµÍ³µ÷ÓÃ´´½¨socketµÄÊ±ºò¸³Öµ£©º¯ÊıÖ¸Õënetlink_bind£¬netlink_bind½«µ÷ÓÃnetlink_autobind½«¶ÔÓ¦netlink_sockµÄ³ÉÔ±portidºÍbound¶¼ÉèÖÃÎªµ±Ç°Ïß³ÌµÄthread group id(tgid)£»²¢µ÷ÓÃ__netlink_insert½«´ËÓÃ»§Ì¬Ì×½Ó×ÖsockºÍÏà¹ØĞÅÏ¢portid²åÈëµ½nl_table[sk->sk_protocol]ÖĞ£¬ÕâÑù´ËÓÃ»§Ì¬Ì×½Ó×Ö¾Í¿ÉÒÔ½ÓÊÕÀ´×ÔÄÚºËµÄnetlinkÏûÏ¢¡£
+## bindç³»ç»Ÿè°ƒç”¨
+localæ˜¯æœ¬åœ°socketåœ°å€ï¼ˆstruct sockaddr_nlç»“æ„ï¼‰,å…¶nl_pidè®¾ç½®ä¸º0ï¼ˆé€šå¸¸åº”è¯¥ä¸ºå½“å‰è¿›ç¨‹idï¼‰ï¼Œè®¾ç½®ä¸º0ä¹Ÿæ²¡æœ‰å…³ç³»ï¼Œåé¢bindç³»ç»Ÿè°ƒç”¨æ­¤socketçš„opsï¼ˆnetlink_opsï¼Œåœ¨socketç³»ç»Ÿè°ƒç”¨åˆ›å»ºsocketçš„æ—¶å€™èµ‹å€¼ï¼‰å‡½æ•°æŒ‡é’ˆnetlink_bindï¼Œnetlink_bindå°†è°ƒç”¨netlink_autobindå°†å¯¹åº”netlink_sockçš„æˆå‘˜portidå’Œboundéƒ½è®¾ç½®ä¸ºå½“å‰çº¿ç¨‹çš„thread group id(tgid)ï¼›å¹¶è°ƒç”¨__netlink_insertå°†æ­¤ç”¨æˆ·æ€å¥—æ¥å­—sockå’Œç›¸å…³ä¿¡æ¯portidæ’å…¥åˆ°nl_table[sk->sk_protocol]ä¸­ï¼Œè¿™æ ·æ­¤ç”¨æˆ·æ€å¥—æ¥å­—å°±å¯ä»¥æ¥æ”¶æ¥è‡ªå†…æ ¸çš„netlinkæ¶ˆæ¯ã€‚
 ```
 bind(rth->fd, (struct sockaddr *)&rth->local
     netlink_bind
@@ -102,7 +102,7 @@ bind(rth->fd, (struct sockaddr *)&rth->local
                 nlk_sk(sk)->bound = portid
 ```
 
-## sendmsgÏµÍ³µ÷ÓÃ
+## sendmsgç³»ç»Ÿè°ƒç”¨
 ```
 do_iplink
     iplink_modify(RTM_NEWLINK,
@@ -110,7 +110,7 @@ do_iplink
         rtnl_talk
             sendmsg(rtnl->fd, &msg, 0)
 ```
-ip linkµÄÏµÍ³µ÷ÓÃÊÇsendmsg£¬¶ÔÓ¦ÄÚºËº¯ÊıÊÇ__sys_sendmsg
+ip linkçš„ç³»ç»Ÿè°ƒç”¨æ˜¯sendmsgï¼Œå¯¹åº”å†…æ ¸å‡½æ•°æ˜¯__sys_sendmsg
 ```
 __sys_sendmsg(fd, msg, flags, true)
     ___sys_sendmsg(sock, msg, &msg_sys, flags, NULL, 0)
@@ -120,12 +120,12 @@ __sys_sendmsg(fd, msg, flags, true)
                     netlink_sendmsg
                         netlink_unicast
                             sk = netlink_getsockbyportid(ssk, portid)
-                                netlink_lookup(sock_net(ssk), ssk->sk_protocol, portid)//ÔÚnl_table²éÕÒ°ó¶¨µÄÄÚºËnetlinkÌ×½Ó×Ö
+                                netlink_lookup(sock_net(ssk), ssk->sk_protocol, portid)//åœ¨nl_tableæŸ¥æ‰¾ç»‘å®šçš„å†…æ ¸netlinkå¥—æ¥å­—
                             netlink_unicast_kernel(sk, skb, ssk)
                                 nlk->netlink_rcv(skb) 
-                                    rtnetlink_rcv/netlink_rcv_skb/rtnetlink_rcv_msg//Ö´ĞĞÄÚºËnetlinkÌ×½Ó×ÖµÄ½ÓÊÕº¯Êırtnetlink_rcv½ÓÊÕÓÃ»§ÏûÏ¢¡£
+                                    rtnetlink_rcv/netlink_rcv_skb/rtnetlink_rcv_msg//æ‰§è¡Œå†…æ ¸netlinkå¥—æ¥å­—çš„æ¥æ”¶å‡½æ•°rtnetlink_rcvæ¥æ”¶ç”¨æˆ·æ¶ˆæ¯ã€‚
 ```
-## recvmsgÏµÍ³µ÷ÓÃ
+## recvmsgç³»ç»Ÿè°ƒç”¨
 ```
 recvmsg
     __sys_recvmmsg
@@ -136,54 +136,54 @@ recvmsg
                     __skb_wait_for_more_packets
                         prepare_to_wait_exclusive(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE)/schedule_timeout(*timeo_p)
                     __skb_try_recv_datagram
-                        __skb_try_recv_from_queue //´Ósocket buffer (&sk->sk_receive_queue)æ??°ü
+                        __skb_try_recv_from_queue //ä»socket buffer (&sk->sk_receive_queue)??åŒ…
 ```
-ÄÚºË·¢ËÍnetlinkÏûÏ¢¸øÓÃ»§µÄ¹ı³Ì£¬¼´½«skb_buffĞ´ÈëÓÃ»§netlinkÌ×½Ó×ÖµÄsk_receive_queue¡£ÏÂÃæ´Órtnetlink_rcv_msg¿ªÊ¼·ÖÎö£º
+å†…æ ¸å‘é€netlinkæ¶ˆæ¯ç»™ç”¨æˆ·çš„è¿‡ç¨‹ï¼Œå³å°†skb_buffå†™å…¥ç”¨æˆ·netlinkå¥—æ¥å­—çš„sk_receive_queueã€‚ä¸‹é¢ä»rtnetlink_rcv_msgå¼€å§‹åˆ†æï¼š
 ```
 rtnetlink_rcv_msg
-    rtnl_get_link(family, type)//ÔÚrtnl_msg_handlers±íÖĞ²éÑ¯ÓÉrtnl_register×¢²áµÄtypeÏûÏ¢ÀàĞÍµÄ»Øµ÷º¯Êı£¨´Ë´¦ÊÇRTM_GETLINKÏûÏ¢µÄ»Øµ÷º¯Êırtnl_dump_ifinfo£©
+    rtnl_get_link(family, type)//åœ¨rtnl_msg_handlersè¡¨ä¸­æŸ¥è¯¢ç”±rtnl_registeræ³¨å†Œçš„typeæ¶ˆæ¯ç±»å‹çš„å›è°ƒå‡½æ•°ï¼ˆæ­¤å¤„æ˜¯RTM_GETLINKæ¶ˆæ¯çš„å›è°ƒå‡½æ•°rtnl_dump_ifinfoï¼‰
         netlink_dump_start(rtnl, skb, nlh, &c)
-            netlink_lookup(sock_net(ssk), ssk->sk_protocol, NETLINK_CB(skb).portid) //ÔÚnl_table²éÕÒ°ó¶¨µÄÓÃ»§Ì¬netlinkÌ×½Ó×Ö
-            netlink_dump(sk) //´Ë´¦µÄ²ÎÊıÒÑ¾­ÊÇÓÃ»§Ì¬Ì×½Ó×Ö
-                skb = alloc_skb(alloc_size  //·ÖÅäskb»º³åÇø
+            netlink_lookup(sock_net(ssk), ssk->sk_protocol, NETLINK_CB(skb).portid) //åœ¨nl_tableæŸ¥æ‰¾ç»‘å®šçš„ç”¨æˆ·æ€netlinkå¥—æ¥å­—
+            netlink_dump(sk) //æ­¤å¤„çš„å‚æ•°å·²ç»æ˜¯ç”¨æˆ·æ€å¥—æ¥å­—
+                skb = alloc_skb(alloc_size  //åˆ†é…skbç¼“å†²åŒº
                 skb_reserve(skb, skb_tailroom(skb) - alloc_size)
-                netlink_skb_set_owner_r(skb, sk) //½«ÓÃ»§Ì¬sock¸³Öµ¸øskb->sk
-                nlk->dump_done_errno = cb->dump(skb, cb) //ÕâÀï½«Ö´ĞĞrtnl_dump_ifinfo»Øµ÷º¯Êı
+                netlink_skb_set_owner_r(skb, sk) //å°†ç”¨æˆ·æ€sockèµ‹å€¼ç»™skb->sk
+                nlk->dump_done_errno = cb->dump(skb, cb) //è¿™é‡Œå°†æ‰§è¡Œrtnl_dump_ifinfoå›è°ƒå‡½æ•°
                 __netlink_sendskb(sk, skb)
                     netlink_deliver_tap(sock_net(sk), skb)
-                    skb_queue_tail(&sk->sk_receive_queue, skb) //½«skb¼ÓÈëµ½ÓÃ»§Ì¬sockµÄsk_receive_queue¶ÓÁĞ
-                    sk->sk_data_ready(sk) //µ÷ÓÃsk_data_ready»½ĞÑnetlink_recvmsg½øĞĞ½ÓÊÕ
+                    skb_queue_tail(&sk->sk_receive_queue, skb) //å°†skbåŠ å…¥åˆ°ç”¨æˆ·æ€sockçš„sk_receive_queueé˜Ÿåˆ—
+                    sk->sk_data_ready(sk) //è°ƒç”¨sk_data_readyå”¤é†’netlink_recvmsgè¿›è¡Œæ¥æ”¶
                         wake_up_interruptible_sync_poll(&wq->wait
 ```
-# Í¨ÓÃNETLINK_GENERICÌ×½Ó×Ö
-netlinkĞ­Òé´ØÊı×î´ó32¸ö£¨MAX_LINKS£©£¬ÎªÖ§³Ö¸ü¶àµÄĞ­Òé´Ø£¬¿ª·¢ÁËÍ¨ÓÃnetlink´ØNETLINK_GENERIC¡£Í¨ÓÃnetlinkÒÔnetlinkĞ­ÒéÎª»ù´¡£¬Ê¹ÓÃÆäAPI£¬¾ÍÏñnetlink¶àÂ·¸´ÓÃÆ÷¡£Í¨ÓÃnetlinkĞ­ÒéÒÑ±»ÓÃÓÚÖÚ¶àµÄÄÚºË×ÓÏµÍ³£¬ÈçACPI×ÓÏµÍ³£¬ÈÎÎñÍ³¼ÆĞÅÏ¢´úÂë£¬¹ıÈÈÊÂ¼ş£¬wirelessÎŞÏß×ÓÏµÍ³µÈ¡£
-»ñÈ¡Í¨ÓÃnetlink¿ØÖÆÆ÷´Ø²ÎÊıÃüÁî`genl ctrl getname nlctrl`µÄÊä³öÊÇ£º
+# é€šç”¨NETLINK_GENERICå¥—æ¥å­—
+netlinkåè®®ç°‡æ•°æœ€å¤§32ä¸ªï¼ˆMAX_LINKSï¼‰ï¼Œä¸ºæ”¯æŒæ›´å¤šçš„åè®®ç°‡ï¼Œå¼€å‘äº†é€šç”¨netlinkç°‡NETLINK_GENERICã€‚é€šç”¨netlinkä»¥netlinkåè®®ä¸ºåŸºç¡€ï¼Œä½¿ç”¨å…¶APIï¼Œå°±åƒnetlinkå¤šè·¯å¤ç”¨å™¨ã€‚é€šç”¨netlinkåè®®å·²è¢«ç”¨äºä¼—å¤šçš„å†…æ ¸å­ç³»ç»Ÿï¼Œå¦‚ACPIå­ç³»ç»Ÿï¼Œä»»åŠ¡ç»Ÿè®¡ä¿¡æ¯ä»£ç ï¼Œè¿‡çƒ­äº‹ä»¶ï¼Œwirelessæ— çº¿å­ç³»ç»Ÿç­‰ã€‚
+è·å–é€šç”¨netlinkæ§åˆ¶å™¨ç°‡å‚æ•°å‘½ä»¤`genl ctrl getname nlctrl`çš„è¾“å‡ºæ˜¯ï¼š
 ![image](/images/posts/network/netlink/genl_ctrl_getname_nlctrl.png)
 
-ÎÒÃÇ½«ÒÔÕâ¸öÃüÁîÎªÀı£¬Î§ÈÆÏÂÍ¼À´½²ÊöÍ¨ÓÃNETLINK_GENERICÌ×½Ó×ÖµÄÍ¨ĞÅ¹ı³Ì¡£
-´ÓÉÏÍ¼¿ÉÒÔ¿´³ö£¬Í¨ÓÃnetlinkÌ×½Ó×ÖÍ¨ĞÅ¹ı³ÌÒ²ÊÇÎ§ÈÆÁ½¸öÊı×éÕ¹¿ª£¬¼´nl_tableºÍgenl_fam_idr£¬Í¼ÖĞ±êÊ¶³öÕû¸ö¹ı³ÌµÄĞòºÅ¡£
+æˆ‘ä»¬å°†ä»¥è¿™ä¸ªå‘½ä»¤ä¸ºä¾‹ï¼Œå›´ç»•ä¸‹å›¾æ¥è®²è¿°é€šç”¨NETLINK_GENERICå¥—æ¥å­—çš„é€šä¿¡è¿‡ç¨‹ã€‚
+ä»ä¸Šå›¾å¯ä»¥çœ‹å‡ºï¼Œé€šç”¨netlinkå¥—æ¥å­—é€šä¿¡è¿‡ç¨‹ä¹Ÿæ˜¯å›´ç»•ä¸¤ä¸ªæ•°ç»„å±•å¼€ï¼Œå³nl_tableå’Œgenl_fam_idrï¼Œå›¾ä¸­æ ‡è¯†å‡ºæ•´ä¸ªè¿‡ç¨‹çš„åºå·ã€‚
 ![image](/images/posts/network/netlink/netlink_generic.png)
-## Í¨ÓÃnetlinkÌ×½Ó×Ö³õÊ¼»¯
-Í¨ÓÃnetlinkĞ­Òé´ØÊ¹ÓÃnetlinkĞ­ÒéµÄAPI£¬Æä³õÊ¼»¯Í¬ÑùĞèÒªcore_initcall(netlink_proto_init)£¬»¹°üº¬ÆäÌØÓĞµÄ³õÊ¼»¯²¿·Ösubsys_initcall(genl_init)¡£genl_init×îÖØÒªµÄ¹¤×÷ÊÇ´´½¨Í¨ÓÃNETLINK_GENERICÄÚºËÌ×½Ó×Ö£¬´Ë´¦½ÓÊÕÓÃ»§¿Õ¼äÏûÏ¢µÄinputº¯ÊıÊÇgenl_rcv£»´ËÍâ»¹×¢²áÁËÍ¨ÓÃnetlinkÌ×½Ó×Ö¿ØÖÆÆ÷´Øgenl_ctrl£¬´Ë¿ØÖÆÆ÷´Øgenl_ctrlÊÇÍ¨ÓÃnetlinkĞ­Òé»úÖÆµÄµÚÒ»¸öÓÃ»§£¬ÆäÓĞÒ»¸öÖØÒª×÷ÓÃ£¬¾ÍÊÇÆäËûÍ¨ÓÃÌ×½Ó×Ö´ØµÄÓÃ»§¿Õ¼äÓ¦ÓÃ³ÌĞòÒªÊ¹ÓÃ´Ë¿ØÖÆÆ÷´ØÀ´»ñÈ¡idr±íµÄid²ÅÄÜÓëÄÚºËÍ¨ĞÅ¡£iproute2µÄgenlÃüÁî¾ÍÊÇÍ¨¹ı´Ë¿ØÖÆÆ÷´Øgenl_ctrlÀ´²éÑ¯ÄÚºËËùÓĞ×¢²áµÄÍ¨ÓÃnetlink´ØµÄ¸÷ÖÖ²ÎÊı£¬Èçid£¬±¨Í·³¤¶È£¬×î´óÊôĞÔÊıµÈ¡£ÆäËûĞèÒªÊ¹ÓÃÍ¨ÓÃnetlinkĞ­ÒéµÄ×ÓÏµÍ³Ö»ĞèÏÈ¶¨Òågenl_family¶ÔÏó£¬È»ºóµ÷ÓÃgenl_register_familyÏòidr±ígenl_fam_idr½øĞĞ×¢²á¼´¿É¡£
+## é€šç”¨netlinkå¥—æ¥å­—åˆå§‹åŒ–
+é€šç”¨netlinkåè®®ç°‡ä½¿ç”¨netlinkåè®®çš„APIï¼Œå…¶åˆå§‹åŒ–åŒæ ·éœ€è¦core_initcall(netlink_proto_init)ï¼Œè¿˜åŒ…å«å…¶ç‰¹æœ‰çš„åˆå§‹åŒ–éƒ¨åˆ†subsys_initcall(genl_init)ã€‚genl_initæœ€é‡è¦çš„å·¥ä½œæ˜¯åˆ›å»ºé€šç”¨NETLINK_GENERICå†…æ ¸å¥—æ¥å­—ï¼Œæ­¤å¤„æ¥æ”¶ç”¨æˆ·ç©ºé—´æ¶ˆæ¯çš„inputå‡½æ•°æ˜¯genl_rcvï¼›æ­¤å¤–è¿˜æ³¨å†Œäº†é€šç”¨netlinkå¥—æ¥å­—æ§åˆ¶å™¨ç°‡genl_ctrlï¼Œæ­¤æ§åˆ¶å™¨ç°‡genl_ctrlæ˜¯é€šç”¨netlinkåè®®æœºåˆ¶çš„ç¬¬ä¸€ä¸ªç”¨æˆ·ï¼Œå…¶æœ‰ä¸€ä¸ªé‡è¦ä½œç”¨ï¼Œå°±æ˜¯å…¶ä»–é€šç”¨å¥—æ¥å­—ç°‡çš„ç”¨æˆ·ç©ºé—´åº”ç”¨ç¨‹åºè¦ä½¿ç”¨æ­¤æ§åˆ¶å™¨ç°‡æ¥è·å–idrè¡¨çš„idæ‰èƒ½ä¸å†…æ ¸é€šä¿¡ã€‚iproute2çš„genlå‘½ä»¤å°±æ˜¯é€šè¿‡æ­¤æ§åˆ¶å™¨ç°‡genl_ctrlæ¥æŸ¥è¯¢å†…æ ¸æ‰€æœ‰æ³¨å†Œçš„é€šç”¨netlinkç°‡çš„å„ç§å‚æ•°ï¼Œå¦‚idï¼ŒæŠ¥å¤´é•¿åº¦ï¼Œæœ€å¤§å±æ€§æ•°ç­‰ã€‚å…¶ä»–éœ€è¦ä½¿ç”¨é€šç”¨netlinkåè®®çš„å­ç³»ç»Ÿåªéœ€å…ˆå®šä¹‰genl_familyå¯¹è±¡ï¼Œç„¶åè°ƒç”¨genl_register_familyå‘idrè¡¨genl_fam_idrè¿›è¡Œæ³¨å†Œå³å¯ã€‚
 ```
 subsys_initcall(genl_init)
-    genl_register_family(&genl_ctrl) //×¢²áÍ¨ÓÃnetlinkÌ×½Ó×Ö¿ØÖÆÆ÷´Ø£¨genl_family£©
-        idr_alloc(&genl_fam_idr, family //½«¿ØÖÆÆ÷´ØÌí¼Óµ½idr±ígenl_fam_idr
+    genl_register_family(&genl_ctrl) //æ³¨å†Œé€šç”¨netlinkå¥—æ¥å­—æ§åˆ¶å™¨ç°‡ï¼ˆgenl_familyï¼‰
+        idr_alloc(&genl_fam_idr, family //å°†æ§åˆ¶å™¨ç°‡æ·»åŠ åˆ°idrè¡¨genl_fam_idr
         genl_ctrl_event(CTRL_CMD_NEWFAMILY, family, NULL, 0)
     register_pernet_subsys(&genl_pernet_ops)
-        net->genl_sock = netlink_kernel_create(net, NETLINK_GENERIC, &cfg) //´´½¨Í¨ÓÃnetlinkÄÚºËÌ×½Ó×Ö
+        net->genl_sock = netlink_kernel_create(net, NETLINK_GENERIC, &cfg) //åˆ›å»ºé€šç”¨netlinkå†…æ ¸å¥—æ¥å­—
 ```
-Í¨ÓÃnetlink»úÖÆÊ¹ÓÃidr»úÖÆ½øĞĞĞ­Òé´Øgenl_familyµÄ¹ÜÀí£º
-1. ÔÚ genl_register_family½«genl_familyÌí¼Óµ½idr±ígenl_fam_idr£¬²¢»ñÈ¡id£»
-2. ÓÃ»§¿Õ¼ä¸ù¾İgenl_familyµÄÃû×ÖÀ´²éÑ¯»ñÈ¡ÆäÔÚgenl_fam_idrµÄid£¬²¢×÷Îª²ÎÊı·¢¸øÄÚºËÍ¨ÓÃnetlinkÌ×½Ó×Ö£¬ÕâÀïÓÃÁËÍ¨ÓÃnetlinkĞ­Òé¿ØÖÆÆ÷´Ø£¬ËùÒÔÆäidĞèÒª±»¹Ì¶¨ÎªGENL_ID_CTRL(0x10)¡£Õâ²¿·ÖÀı×Ó¿ÉÒÔ²Î¿¼ÄÚºË¹¤¾ßgetdelayµÄ´úÂë[tools/accouting/getdelay.c](https://github.com/torvalds/linux/blob/master/tools/accounting/getdelays.c)
-3. Í¨ÓÃnetlinkÄÚºËÌ×½Ó×Öinputº¯Êıgenl_rcv½«¾İ´Ëid²éÑ¯idr±ígenl_fam_idr»ñÈ¡¶ÔÓ¦µÄgenl_family£¬´Ó¶ø»ñÈ¡ºóĞø²Ù×÷º¯Êıgenl_ops¡£
-¹ØÓÚidr»úÖÆ£¬²Î¿¼[idr»úÖÆ](https://blog.csdn.net/coldsnow33/article/details/13503183)
-## Í¨ÓÃnetlinkÌ×½Ó×ÖÊÕ·¢ÏûÏ¢
+é€šç”¨netlinkæœºåˆ¶ä½¿ç”¨idræœºåˆ¶è¿›è¡Œåè®®ç°‡genl_familyçš„ç®¡ç†ï¼š
+1. åœ¨ genl_register_familyå°†genl_familyæ·»åŠ åˆ°idrè¡¨genl_fam_idrï¼Œå¹¶è·å–idï¼›
+2. ç”¨æˆ·ç©ºé—´æ ¹æ®genl_familyçš„åå­—æ¥æŸ¥è¯¢è·å–å…¶åœ¨genl_fam_idrçš„idï¼Œå¹¶ä½œä¸ºå‚æ•°å‘ç»™å†…æ ¸é€šç”¨netlinkå¥—æ¥å­—ï¼Œè¿™é‡Œç”¨äº†é€šç”¨netlinkåè®®æ§åˆ¶å™¨ç°‡ï¼Œæ‰€ä»¥å…¶idéœ€è¦è¢«å›ºå®šä¸ºGENL_ID_CTRL(0x10)ã€‚è¿™éƒ¨åˆ†ä¾‹å­å¯ä»¥å‚è€ƒå†…æ ¸å·¥å…·getdelayçš„ä»£ç [tools/accouting/getdelay.c](https://github.com/torvalds/linux/blob/master/tools/accounting/getdelays.c)
+3. é€šç”¨netlinkå†…æ ¸å¥—æ¥å­—inputå‡½æ•°genl_rcvå°†æ®æ­¤idæŸ¥è¯¢idrè¡¨genl_fam_idrè·å–å¯¹åº”çš„genl_familyï¼Œä»è€Œè·å–åç»­æ“ä½œå‡½æ•°genl_opsã€‚
+å…³äºidræœºåˆ¶ï¼Œå‚è€ƒ[idræœºåˆ¶](https://blog.csdn.net/coldsnow33/article/details/13503183)
+## é€šç”¨netlinkå¥—æ¥å­—æ”¶å‘æ¶ˆæ¯
 ```
 genl_rcv
     genl_rcv_msg
         family = genl_family_find_byid(nlh->nlmsg_type)
-            idr_find(&genl_fam_idr, id)//¸ù¾İÍ¨ÓÃnetlinkÌ×½Ó×Ö´Øid´Óidr±ígenl_fam_idr²éÕÒ»ñÈ¡genl_family
+            idr_find(&genl_fam_idr, id)//æ ¹æ®é€šç”¨netlinkå¥—æ¥å­—ç°‡idä»idrè¡¨genl_fam_idræŸ¥æ‰¾è·å–genl_family
         genl_family_rcv_msg(family, skb, nlh, extack)
             ops = genl_get_cmd(hdr->cmd, family)
                 ops->doit(skb, &info)
@@ -196,21 +196,21 @@ genl_rcv
                             nlmsg_unicast(net->genl_sock, skb, portid)
                                 netlink_unicast(sk, skb, portid, MSG_DONTWAIT)
                                     netlink_getsockbyportid(ssk, portid)
-                                        sock = netlink_lookup(sock_net(ssk), ssk->sk_protocol, portid)//ÔÚnl_table²éÕÒ°ó¶¨µÄÓÃ»§Ì¬netlinkÌ×½Ó×Ö                                    netlink_attachskb(sk, skb, &timeo, ssk) //½«sockºÍsk_buff°ó¶¨ÔÚÒ»Æğ
+                                        sock = netlink_lookup(sock_net(ssk), ssk->sk_protocol, portid)//åœ¨nl_tableæŸ¥æ‰¾ç»‘å®šçš„ç”¨æˆ·æ€netlinkå¥—æ¥å­—                                    netlink_attachskb(sk, skb, &timeo, ssk) //å°†sockå’Œsk_buffç»‘å®šåœ¨ä¸€èµ·
                                     netlink_sendskb(sk, skb)
                                         skb_queue_tail(&sk->sk_receive_queue, skb)
 ```
 
-# ÆäËûnetlinkĞ­Òé´ØÌ×½Ó×Ö
+# å…¶ä»–netlinkåè®®ç°‡å¥—æ¥å­—
 ## NETLINK_NETFILTER socket
-ÓÉnfnetlink_net_init´´½¨¡£
+ç”±nfnetlink_net_initåˆ›å»ºã€‚
 ```
 <net/netfilter/nfnetlink.c>
 module_init(nfnetlink_init)
     register_pernet_subsys(&nfnetlink_net_ops) -> nfnetlink_net_init
 ```
 ## NETLINK_KOBJECT_UEVENT socket
-ÓÃÓÚÉè±¸¹ÜÀí£¬ÓÉuevent_net_init´´½¨¡£
+ç”¨äºè®¾å¤‡ç®¡ç†ï¼Œç”±uevent_net_initåˆ›å»ºã€‚
 ```
 static int uevent_net_init(struct net *net)
 {
@@ -227,23 +227,23 @@ static int uevent_net_init(struct net *net)
 
  ue_sk->sk = netlink_kernel_create(net, NETLINK_KOBJECT_UEVENT, &cfg);
 ```
-## NETLINK_SOCK_DIAG socket Ì×½Ó×Ö¼àÊÓÌ×½Ó×Ö
-ÓÉsock_diag_init´´½¨¡£
+## NETLINK_SOCK_DIAG socket å¥—æ¥å­—ç›‘è§†å¥—æ¥å­—
+ç”±sock_diag_initåˆ›å»ºã€‚
 
-# netlinkÓÃ»§¿Õ¼ä³ÌĞò
-## netlinkÌ×½Ó×Ö¿âlibnl
-netlinkÌ×½Ó×Ö¿âlibnlÌá¹©API·ÃÎÊ»ùÓÚnetlinkĞ­ÒéµÄÄÚºË½Ó¿Ú£¬Æä¹Ù·½ÍøÕ¾ÊÇhttps://www.infradead.org/~tgr/libnl/¡£³ıºËĞÄ¿âlibnlÖ®Íâ£¬»¹ÓĞÍ¨ÓÃnetlink´Ølibnl-genl£¬Â·ÓÉÑ¡Ôñ´Ølibnl-route¼°netfilter´Ølibnl-nfµÈ¡£
+# netlinkç”¨æˆ·ç©ºé—´ç¨‹åº
+## netlinkå¥—æ¥å­—åº“libnl
+netlinkå¥—æ¥å­—åº“libnlæä¾›APIè®¿é—®åŸºäºnetlinkåè®®çš„å†…æ ¸æ¥å£ï¼Œå…¶å®˜æ–¹ç½‘ç«™æ˜¯https://www.infradead.org/~tgr/libnl/ã€‚é™¤æ ¸å¿ƒåº“libnlä¹‹å¤–ï¼Œè¿˜æœ‰é€šç”¨netlinkç°‡libnl-genlï¼Œè·¯ç”±é€‰æ‹©ç°‡libnl-routeåŠnetfilterç°‡libnl-nfç­‰ã€‚
 
 
-## netlinkÏûÏ¢±¨Í·ºÍÊı¾İ½á¹¹
-²Î¿¼¡¶¾«Í¨linuxÄÚºËÍøÂç¡·¼°½áºÏÓÃ»§Ó¦ÓÃ³ÌĞòºÍÄÚºË´úÂë½øĞĞÀí½â¡££¨´ıÍêÉÆ£©
+## netlinkæ¶ˆæ¯æŠ¥å¤´å’Œæ•°æ®ç»“æ„
+å‚è€ƒã€Šç²¾é€šlinuxå†…æ ¸ç½‘ç»œã€‹åŠç»“åˆç”¨æˆ·åº”ç”¨ç¨‹åºå’Œå†…æ ¸ä»£ç è¿›è¡Œç†è§£ã€‚ï¼ˆå¾…å®Œå–„ï¼‰
 
-## Í¨ÓÃnetlink±¨Í·ºÍÊı¾İ½á¹¹
-²Î¿¼¡¶¾«Í¨linuxÄÚºËÍøÂç¡·¼°½áºÏÓÃ»§Ó¦ÓÃ³ÌĞòºÍÄÚºË´úÂë½øĞĞÀí½â¡££¨´ıÍêÉÆ£©
+## é€šç”¨netlinkæŠ¥å¤´å’Œæ•°æ®ç»“æ„
+å‚è€ƒã€Šç²¾é€šlinuxå†…æ ¸ç½‘ç»œã€‹åŠç»“åˆç”¨æˆ·åº”ç”¨ç¨‹åºå’Œå†…æ ¸ä»£ç è¿›è¡Œç†è§£ã€‚ï¼ˆå¾…å®Œå–„ï¼‰
 
-# ²Î¿¼×ÊÁÏ
-* ¡¶¾«Í¨linuxÄÚºËÍøÂç¡·£¬Ó¢ÎÄÃû¡¶Linux Kernel Networking - Implementation and Theory¡·
-×÷Õß£ºÒÔÉ«ÁĞÍøÂç×¨¼ÒRami Rosen£¬ÏÖintel DPDK Tech Leader£¬¸öÈËÖ÷Ò³http://ramirose.wixsite.com/ramirosen
-* [linuxµÄnetlink»úÖÆ](https://blog.csdn.net/dog250/article/details/5303430)
-×÷Õß£ºcsdn²©¿ÍÅÅÃû14µÄdog250
+# å‚è€ƒèµ„æ–™
+* ã€Šç²¾é€šlinuxå†…æ ¸ç½‘ç»œã€‹ï¼Œè‹±æ–‡åã€ŠLinux Kernel Networking - Implementation and Theoryã€‹
+ä½œè€…ï¼šä»¥è‰²åˆ—ç½‘ç»œä¸“å®¶Rami Rosenï¼Œç°intel DPDK Tech Leaderï¼Œä¸ªäººä¸»é¡µhttp://ramirose.wixsite.com/ramirosen
+* [linuxçš„netlinkæœºåˆ¶](https://blog.csdn.net/dog250/article/details/5303430)
+ä½œè€…ï¼šcsdnåšå®¢æ’å14çš„dog250
 
