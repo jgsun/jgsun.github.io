@@ -47,6 +47,8 @@ struct netlink_kernel_cfg cfg = {
 
 	sk = netlink_kernel_create(net, NETLINK_ROUTE, &cfg);
 
+```
+```
 register_pernet_subsys(&rtnetlink_net_ops)
     rtnetlink_net_init
         sk = netlink_kernel_create(net, NETLINK_ROUTE, &cfg)
