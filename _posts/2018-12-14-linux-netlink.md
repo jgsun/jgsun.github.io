@@ -36,6 +36,8 @@ netlink协议是一种进程间通信（Inter Process Communication,IPC）机制
 (1) 创建rtnetlink内核内核套接字
 rtnetlink套接字是NETLINK_ROUTE协议簇，专用于联网的netlink套接字，用于路由消息、邻接消息、链路消息和其他网络子系统消息。netlink_kernel_create在创建内核套接字时，调用netlink_insert(sk, 0)将此套接字插入到nl_table，才可以接收用户空间发送的netlink消息。
 netlink_kernel_cfg结构的input回调函数rtnetlink_rcv，将赋值给netlink_sock的成员netlink_rcv，用于接收从用户空间发送的消息；netlink_kernel_create创建的内核套接字并保存在网络命名空间对象net的变量rtnl。
+
+rtnetlink的netlink_kernel_cfg结构体：
 ```
 struct netlink_kernel_cfg cfg = {
 	.groups		= RTNLGRP_MAX,
@@ -46,8 +48,8 @@ struct netlink_kernel_cfg cfg = {
 };
 
 	sk = netlink_kernel_create(net, NETLINK_ROUTE, &cfg);
-
 ```
+register_pernet_subsys(&rtnetlink_net_ops)将调用rtnetlink_net_init：
 ```
 register_pernet_subsys(&rtnetlink_net_ops)
     rtnetlink_net_init
