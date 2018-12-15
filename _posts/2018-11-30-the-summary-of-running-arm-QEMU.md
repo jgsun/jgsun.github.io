@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "QEMU模拟arm u-boot/linux小结"
-categories: virtulize
+categories: virtualize
 tags: arm QEMU linux u-boot buildroot
 author: jgsun
 ---
