@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "浅析linux netlink"
+title:  "图解linux netlink"
 categories: network
 tags: linux netlink
 author: jgsun
@@ -11,7 +11,7 @@ author: jgsun
 
 # 概述
 netlink协议是一种进程间通信（Inter Process Communication,IPC）机制，为的用户空间和内核空间以及内核的某些部分之间提供了双向通信方法。
-本文讲述了linux内核中netlink的初始化及通信过程，还介绍了通用netlink套接字。通过分析netlink的实现机制，达到能在生产实践中正确使用netlink的目的。本文基于linux 4.20。
+本文围绕两张图介绍iprout2命令"ip -s link ls eth0"和"genl ctrl getname nlctrl"的内核实现，来解析netlink套接字协议簇和通用netlink协议，包括初始化、套接字系统调用socket，bind，sendmsg和recvmsg、核心数据结构等。通过分析netlink的实现机制，达到能在生产实践中正确使用netlink的目的。本文基于linux 4.20。
 
 
 
@@ -19,9 +19,18 @@ netlink协议是一种进程间通信（Inter Process Communication,IPC）机制
 
 
 
+> 关于iprout2：iprout2工具集ip命令采用netlink套接字来与内核通信，访问和设置网络子系统的路由，链路等信息，可参考[https://wiki.linuxfoundation.org/networking/iproute2](https://wiki.linuxfoundation.org/networking/iproute2)获取源码和更多信息。
+# netlink协议簇
+netlink套接字支持最大32个协议簇，iprout2采用NETLINK_ROUTE协议簇和内核通信，其中命令："ip -s link ls eth0"获取eth0网络接口统计信息，其输出：
+![image](/images/posts/network/netlink/ip_s_link_ls_eth0.png)
 
+下面以这条命令为例，围绕下图来讲述NETLINK_ROUTE套接字从初始化，创建socket，bind，sendmsg到recvmsg的内核空间全过程。
+![image](/images/posts/network/netlink/netlink_route.png)
 
-# netlink初始化
+可以看出，NETLINK_ROUTE套接字通信过程总体围绕两个数组展开，即nl_table和rtnl_msg_handlers，图中黑色数字标识出整个过程的序号。
+> 图中红色数字和黑色虚线标识了socket设计的思路：①初始化调用sock_register注册协议簇套接字操作函数块，提供创建套接字的回调函数netlink_create；②socket系统调用创建套接字，将套接字层对应系统调用的套接字操作函数块struct proto_ops netlink_ops赋值给套接字socket。
+
+## netlink初始化
 内核启动阶段，netlink子系统初始化从core_initcall(netlink_proto_init)开始：
 1. proto_register(&netlink_proto, 0)
 注意，这里第二个参数是0，表示不进行alloc_slab，说明其没有专门定义slab cache。
@@ -64,21 +73,7 @@ register_pernet_subsys(&rtnetlink_net_ops)
 rtnl_register(PF_UNSPEC, RTM_GETLINK, rtnl_getlink,
        rtnl_dump_ifinfo, 0);
 ```
-# NETLINK_ROUTE套接字
-iprout2工具集ip命令采用NETLINK_ROUTE套接字来与内核通信，获取网络子系统的路由，链路等信息；ip -s link ls eth0获取eth0网络接口统计信息，其输出：
-![image](/images/posts/network/netlink/ip_s_link_ls_eth0.png)
 
-> 关于iproute2，可参考百科[https://zh.wikipedia.org/wiki/Iproute2](https://zh.wikipedia.org/wiki/Iproute2)
-其源码位于：git://git.kernel.org/pub/scm/network/iproute2/iproute2.git
-
-下面以这条命令为例，围绕下图来讲述NETLINK_ROUTE套接字从初始化，创建socket，bind，sendmsg到recvmsg的内核空间全过程。
-![image](/images/posts/network/netlink/netlink_route.png)
-
-可以看出，NETLINK_ROUTE套接字通信过程总体围绕两个数组展开，即nl_table和rtnl_msg_handlers，图中黑色数字标识出整个过程的序号。
-> 图中红色数字和黑色虚线标识了socket设计的思路：①初始化调用sock_register注册协议簇套接字操作函数块，提供创建套接字的回调函数netlink_create；②socket系统调用创建套接字，将套接字层对应系统调用的套接字操作函数块struct proto_ops netlink_ops赋值给套接字socket。
-
-## 初始化
-初始化过程已经在上面“netlink初始化”部分讲过了，这里不再重复。
 ## socket系统调用
 socket系统调用将创建用户空间netlink套接字，其domain参数AF_NETLINK，是protocol是NETLINK_ROUTE。
 ```
@@ -161,7 +156,7 @@ rtnetlink_rcv_msg
                     sk->sk_data_ready(sk) //调用sk_data_ready唤醒netlink_recvmsg进行接收
                         wake_up_interruptible_sync_poll(&wq->wait
 ```
-# 通用NETLINK_GENERIC套接字
+# 通用netlink协议
 netlink协议簇数最大32个（MAX_LINKS），为支持更多的协议簇，开发了通用netlink簇NETLINK_GENERIC。通用netlink以netlink协议为基础，使用其API，就像netlink多路复用器。通用netlink协议已被用于众多的内核子系统，如ACPI子系统，任务统计信息代码，过热事件，wireless无线子系统等。
 获取通用netlink控制器簇参数命令`genl ctrl getname nlctrl`的输出是：
 ![image](/images/posts/network/netlink/genl_ctrl_getname_nlctrl.png)
@@ -169,6 +164,7 @@ netlink协议簇数最大32个（MAX_LINKS），为支持更多的协议簇，�
 下面以这个命令为例，围绕下图来讲述通用NETLINK_GENERIC套接字的通信过程。
 可以看出，通用netlink套接字通信过程也是围绕两个数组展开，即nl_table和genl_fam_idr，图中标识出整个过程的序号。
 ![image](/images/posts/network/netlink/netlink_generic.png)
+
 ## 初始化
 通用netlink协议簇使用netlink协议的API，其初始化同样需要core_initcall(netlink_proto_init)，还包含其特有的初始化部分subsys_initcall(genl_init)。genl_init最重要的工作是创建通用NETLINK_GENERIC内核套接字，此处接收用户空间消息的input函数是genl_rcv；此外还注册了通用netlink套接字控制器簇genl_ctrl，此控制器簇genl_ctrl是通用netlink协议机制的第一个用户，其有一个重要作用，就是其他通用套接字簇的用户空间应用程序要使用此控制器簇来获取idr表的id才能与内核通信，所以其id需要被固定为GENL_ID_CTRL(0x10)。iproute2的genl命令就是通过此控制器簇genl_ctrl来查询内核所有注册的通用netlink簇的各种参数，如id，报头长度，最大属性数等。其他需要使用通用netlink协议的子系统只需先定义genl_family对象，然后调用genl_register_family向idr表genl_fam_idr进行注册即可。
 ```
