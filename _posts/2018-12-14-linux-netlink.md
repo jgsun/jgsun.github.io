@@ -20,6 +20,7 @@ netlink协议是一种进程间通信（Inter Process Communication,IPC）机制
 
 
 > 关于iprout2：iprout2工具集ip命令采用netlink套接字来与内核通信，访问和设置网络子系统的路由，链路等信息，可参考[https://wiki.linuxfoundation.org/networking/iproute2](https://wiki.linuxfoundation.org/networking/iproute2)获取源码和更多信息。
+
 # netlink协议簇
 netlink套接字支持最大32个协议簇，iprout2采用NETLINK_ROUTE协议簇和内核通信，其中命令："ip -s link ls eth0"获取eth0网络接口统计信息，其输出：
 ![image](/images/posts/network/netlink/ip_s_link_ls_eth0.png)
