@@ -25,13 +25,12 @@ netlink协议是一种进程间通信（Inter Process Communication,IPC）机制
 内核启动阶段，netlink子系统初始化从core_initcall(netlink_proto_init)开始：
 1. proto_register(&netlink_proto, 0)
 注意，这里第二个参数是0，表示不进行alloc_slab，说明其没有专门定义slab cache。
-注册netlink传输层协议实例函数块变量netlink_proto到内核网络协议栈中：加到proto_list链表；
-和tcp_prot不同，netlink_proto没有定义协议相关的收发函数，只提供一个有用的成员obj_size = sizeof(struct netlink_sock)在创建用户空间netlink套接字的时候用于指定分配的套接字对象大小。
+注册netlink协议实例函数块变量struct proto netlink_proto到内核网络协议栈中：加到proto_list链表（cat cat /proc/net/protocols可查看系统中注册的所有网络协议实例）；struct proto网络协议实例是socket层和传输层之间的接口，包含协议收发数据包的函数指针。netlink没有传输层功能，所以其函数块netlink_proto没有函数指针，只有一个变量obj_size = sizeof(struct netlink_sock)用于在创建用户空间netlink套接字的时候指定分配的套接字对象大小。
 `list_add(&prot->node, &proto_list)`
 2. 初始化数组nl_table
 每个netlink协议簇对应nl_table数组的一个条目（struct netlink_table类型），一共32个。nl_table是netlink子系统的实现的一个关键表结构，其实是一个hash链结构，只要创建netlink套接字，不管是内核的还是用户空间的，都要调用netlink_insert将netlink套接字本身和它的信息一并插入到这个链表结构中（用户态套接字在bind系统调用的时候调用netlink_insert插入nl_table；内核套接字是在创建的时候调用netlink_insert插入nl_table），然后在发送时，只要调用netlink_lookup遍历这个表就可以快速定位要发送的目标套接字。
 3. sock_register(&netlink_family_ops)
-添加套接字层协议handler，创建用户空间netlink套接字的时候将调用netlink_family_ops提供的方法netlink_create。
+注册netlink协议簇套接字操作函数块，创建用户空间netlink套接字的时候将调用netlink_family_ops提供的方法netlink_create。
 4. rtnetlink_init
 (1) 创建rtnetlink内核内核套接字
 rtnetlink套接字是NETLINK_ROUTE协议簇，专用于联网的netlink套接字，用于路由消息、邻接消息、链路消息和其他网络子系统消息。netlink_kernel_create在创建内核套接字时，调用netlink_insert(sk, 0)将此套接字插入到nl_table，才可以接收用户空间发送的netlink消息。
@@ -75,7 +74,9 @@ iprout2工具集ip命令采用NETLINK_ROUTE套接字来与内核通信，获取�
 下面以这条命令为例，围绕下图来讲述NETLINK_ROUTE套接字从初始化，创建socket，bind，sendmsg到recvmsg的内核空间全过程。
 ![image](/images/posts/network/netlink/netlink_route.png)
 
-可以看出，NETLINK_ROUTE套接字通信过程总体围绕两个数组展开，即nl_table和rtnl_msg_handlers，图中标识出整个过程的序号。
+可以看出，NETLINK_ROUTE套接字通信过程总体围绕两个数组展开，即nl_table和rtnl_msg_handlers，图中黑色数字标识出整个过程的序号。
+> 图中红色数字和黑色虚线标识了socket设计的思路：①初始化调用sock_register注册协议簇套接字操作函数块，提供创建套接字的回调函数netlink_create；②socket系统调用创建套接字，将套接字层对应系统调用的套接字操作函数块struct proto_ops netlink_ops赋值给套接字socket。
+
 ## 初始化
 初始化过程已经在上面“netlink初始化”部分讲过了，这里不再重复。
 ## socket系统调用
@@ -88,7 +89,7 @@ rtnl_open/rtnl_open_byproto/socket
         bind = nl_table[protocol].bind
         unbind = nl_table[protocol].unbind
         __netlink_create(net, sock, cb_mutex, protocol, kern)
-            sock->ops = &netlink_ops
+            sock->ops = &netlink_ops //赋值套接字层对应系统调用的套接字操作函数块struct proto_ops
             sk_alloc(net,//分配struct netlink_sock套接字（继承通用套接字struct sock）
             sock_init_data(sock, sk)
                 sk->sk_rcvbuf = sysctl_rmem_default//初始化接收/发送缓存为rmem_default/wmem_default
@@ -99,6 +100,7 @@ setsockopt(rth->fd, SOL_SOCKET, SO_RCVBUF //设置套接字接收缓存大小
 getsockname(rth->fd, (struct sockaddr *)&rth->local
             init_waitqueue_head(&nlk->wait)
 ```
+socket系统调用初始化过程中sock_register(&netlink_family_ops)注册的netlink协议簇的函数指针netlink_create。netlink_create函数读取nl_table对应protocol的cb_mutex，bind和unbind（创建内核套接字的时候写入nl_table）赋值给netlink_sock；接着调用__netlink_create，分配struct netlink_sock套接字，初始化套接字收发缓存等，将套接字层对应系统调用的套接字操作函数块struct proto_ops netlink_ops赋值给套接字socket，这样套接字其他系统调用将执行此套接字操作函数块的函数（如bind系统调用执行netlink_bind，sendmsg系统调用执行netlink_sendmsg等）。
 
 ## bind系统调用
 local是本地socket地址（struct sockaddr_nl结构）,其nl_pid设置为0（通常应该为当前进程id），设置为0也没有关系，后面bind系统调用此socket的ops（netlink_ops，在socket系统调用创建socket的时候赋值）函数指针netlink_bind，netlink_bind将调用netlink_autobind将对应netlink_sock的成员portid和bound都设置为当前线程的thread group id(tgid)；并调用__netlink_insert将此用户态套接字sock和相关信息portid插入到nl_table[sk->sk_protocol]中，这样此用户态套接字就可以接收来自内核的netlink消息。
