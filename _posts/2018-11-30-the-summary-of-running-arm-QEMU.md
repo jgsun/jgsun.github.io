@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "QEMU模拟arm vexpress u-boot/linux"
+title:  "QEMU模拟arm u-boot/linux"
 categories: virtualize
 tags: arm QEMU linux u-boot buildroot
 author: jgsun
@@ -13,6 +13,7 @@ author: jgsun
 这篇文章是用QEMU模拟运行arm u-boot和linux的一个总结，以arm  vexpres板为例，包括用QEMU单独运行u-boot或者linux；实现QEMU运行u-boot和宿主机ubuntu网络通信，u-boot用tftp下载方式引导linux；u-boot从SD卡或者flash引导linux。本文使用buildroot作为构建系统，极大简化了编译和文件系统制作方面的工作。以buildroot自带的configs/qemu_arm_vexpress_defconfig作为起点，增加u-boot，改rootfs为initramfs等，产生了本文所用的默认配置configs/qemu_arm_vexpress-fun_defconfig，保存在github网站:https://github.com/jgsun/buildroot，用于制作sd卡和flash image的脚本文件也放到了该github网站（board/qemu/scripts目录）。
 
 关键字：windows7，virtualbox，ubuntu18.04，buildroot
+
 
 
 
