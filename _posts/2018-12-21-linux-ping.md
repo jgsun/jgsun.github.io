@@ -10,7 +10,7 @@ author: jgsun
 {:toc}
 
 # 概述
-ping命令采用ICMP协议，是一个用户空间程序，它打开一个SOCK_RAW套接字或者ICMP套接字发送ICMP_ECHO消息，收到ICMP_ECHOREPLY的消息来相应。本文讲述了ping命令的内核实现。
+ping命令采用ICMP协议，是一个用户空间程序，它打开一个SOCK_RAW套接字或者ICMP套接字发送ICMP_ECHO消息，接收ICMP_ECHOREPLY的消息。本文讲述了ping命令的内核实现。
 
 
 
@@ -54,6 +54,7 @@ fs_initcall(inet_init)
     icmp_init //为每一个cpu创建内核ICMPv4套接字，存储在percpu变量net->ipv4.icmp_sk，用于回ping消息用
         inet_ctl_sock_create  
 ```
+1. inet_add_protocol(&icmp_protocol, IPPROTO_ICMP)
 ## ping命令发送端内核实现
 ping命令发送端将依次执行socket系统调用打开RAW套接字，执行sendto系统调用发送ICMP_ECHO消息，执行poll睡眠等待ICMP_ECHOREPLY消息，执行recvmsg系统调用接收ICMP_ECHOREPLY消息，最终打印出'64 bytes from 192.168.122.1: icmp_seq=1 ttl=64 time=11.1 ms'
 ### socket系统调用
