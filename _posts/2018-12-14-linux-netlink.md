@@ -23,7 +23,7 @@ netlink协议是一种进程间通信（Inter Process Communication,IPC）机制
 
 # netlink协议簇
 netlink套接字支持最大32个协议簇，iprout2采用NETLINK_ROUTE协议簇和内核通信，其中命令："ip -s link ls eth0"获取eth0网络接口统计信息，其输出：
-![image](/images/posts/network/netlink/ip_s_link_ls_eth0.png)
+![image](/images/posts/network/netlink/out_ip_s_link_ls_eth0.png)
 
 下面以这条命令为例，围绕下图来讲述NETLINK_ROUTE套接字从初始化，创建socket，bind，sendmsg到recvmsg的内核空间全过程。
 ![image](/images/posts/network/netlink/netlink_route.png)
@@ -160,7 +160,7 @@ rtnetlink_rcv_msg
 # 通用netlink协议
 netlink协议簇数最大32个（MAX_LINKS），为支持更多的协议簇，开发了通用netlink簇NETLINK_GENERIC。通用netlink以netlink协议为基础，使用其API，就像netlink多路复用器。通用netlink协议已被用于众多的内核子系统，如ACPI子系统，任务统计信息代码，过热事件，wireless无线子系统等。
 获取通用netlink控制器簇参数命令`genl ctrl getname nlctrl`的输出是：
-![image](/images/posts/network/netlink/genl_ctrl_getname_nlctrl.png)
+![image](/images/posts/network/netlink/out_genl_ctrl_getname_nlctrl.png)
 
 下面以这个命令为例，围绕下图来讲述通用NETLINK_GENERIC套接字的通信过程。
 可以看出，通用netlink套接字通信过程也是围绕两个数组展开，即nl_table和genl_fam_idr，图中标识出整个过程的序号。
