@@ -148,7 +148,7 @@ Results logged to /home/jiangusu/.gem/ruby/2.3.0/extensions/x86_64-cygwin/2.3.0/
 
 
 `jiangusu@CV0019059N0:~/.gem/ruby/2.3.0/gems/eventmachine-1.2.7/ext$ make`
-于是保存之后重新执行` gem install jekyll`安装，却还是报同样的错误；原来安装的时候会下载源文件 覆盖 刚才修改的文件。
+于是保存之后重新执行` gem install jekyll`安装，却还是报同样的错误；原来安装的时候会下载源文件覆盖刚才修改的文件。
 执行` gem install jekyll`安装之后，在重新加载窗口出来的时候，迅速点击no和保存按钮，在下载和编译之间打一个时间差把文件内容修改了，编译成功了，安装也成功了。
 
 ![image](/images/posts/build/blog-time-src-pop.png)
