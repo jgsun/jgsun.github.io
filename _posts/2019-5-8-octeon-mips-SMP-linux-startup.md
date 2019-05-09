@@ -11,21 +11,24 @@ author: jgsun
 
 [TOC]
 # 1. 概述
-本文基于octeon sdk3.1，u-boot和linux代码库分别是u-boot-octeon-sdk3.1和linux-octeon-sdk3.1。
+octeon MIPS C7100 SMP linux的多核启动由u-boot和linux协同完成。本文所用u-boot和linux代码库分别是u-boot-octeon-sdk3.1和linux-octeon-sdk3.1。
+
+
+
+
+
+
+
+
+
+
+
+
+
 任何MIPS Core都是从系统的虚拟地址0xbfc00000启动的，其对应的物理地址为0x1FC00000。因为上述地址处于kseg1中，所以此时系统不需要TLB映射就能够运行（这段空间通过去掉最高的三位来获得物理地址）。
 
 Cavium CPU根据型号不同，一个CPU里面可能集成了多个Core。这些Core里面，在上电时，只有core 0（一般称之为主核，其它核称为从核）会从reset状态跳转到物理地址0x1FC00000（我们的flash起始地址会映射成这个值），开始执行相关的一系列初始化代码，如内存、外设等等。而另外一些核则仍处于reset状态，只有core 0主动去唤醒它们时，从核才有可能开始正常运转。
-octeon sdk3.1 SMP linux多核启动由u-boot和linux协同完成。
-
-
-
-
-
-
-
-
-
-
+ 
 # 2. u-boot阶段
 
 ![image](/images/posts/arch/octeon-smp-linux-uboot.png)
