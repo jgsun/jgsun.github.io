@@ -54,7 +54,7 @@ cygwin是一个在windows平台上运行的类UNIX模拟环境，是cygnus solut
 # 2. 搭建步骤
 ## 2.1 安装工具
 （1）安装cygwin及其安装工具apt-cyg
-注意安装devel package，详见另外一篇文章：cygwin安装
+注意安装devel package，详见另外一篇文章：[使用cygwin](https://jgsun.github.io/2019/05/12/using-cygwin/)
 （2）安装ruby-devel
 
 `jiangusu@CV0019059N0:~$ apt-cyg install ruby-devel`
