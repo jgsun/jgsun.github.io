@@ -1,8 +1,8 @@
 ---
 layout: post
-title: "octeon mips C7100 SMP linux多核启动"
+title: "OCTEON MIPS SMP linux多核启动"
 categories: arch
-tags: octeon, SMP linux, MIPS
+tags: OCTEON, SMP linux, MIPS
 author: jgsun
 ---
 
@@ -11,7 +11,7 @@ author: jgsun
 
 [TOC]
 # 1. 概述
-octeon MIPS C7100 SMP linux的多核启动由u-boot和linux协同完成。本文所用u-boot和linux代码库分别是u-boot-octeon-sdk3.1和linux-octeon-sdk3.1。
+OCTEON MIPS C7100 SMP linux的多核启动由u-boot和linux协同完成。本文所用u-boot和linux代码库分别是u-boot-octeon-sdk3.1和linux-octeon-sdk3.1。
 
 
 
