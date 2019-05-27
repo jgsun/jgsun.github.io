@@ -58,9 +58,9 @@ ebase += (read_c0_ebase() & 0x3ffff000) //加入u-boot写入的0x1000之后 ebas
 ###  2.1.2  start_kernel/ trap_init
 主核core0启动阶段调用start_kernel/ trap_init，主要完成：
 （1）set  ebase全局变量,等于 CKSEG0加上u-boot阶段写入的offset 0x1000，即 0xffffffff80001000
-（2） per_cpu_trap_init配置Root.Status寄存器(clear BEV)和计算 系统timer中断号码cp0_compare_irq等于7
-（3）set_except_vector(0, handle_int)等，初始化异常向量数组exception_handlers[32]，中断是0，handler是 handle_int
-（4） set_handler(0x180, &except_vec3_generic, 0x80)，拷贝异常入口函数 except_vec3_generic到 ebase寄存器设定的入口地址
+（2）per_cpu_trap_init配置Root.Status寄存器(clear BEV)和计算 系统timer中断号码cp0_compare_irq等于7
+（3）set_except_vector(0, handle_int)，初始化异常向量数组exception_handlers[32]，即注册各种异常处理函数set_except_vector函数将上32个异常的处理函数地址放到一个全局数组exception_handlers中，例如外部中断异常处理函数：exception_handlers[0] = handle_int
+（4）set_handler(0x180, &except_vec3_generic, 0x80)，拷贝异常入口函数except_vec3_generic到ebase寄存器设定的入口地址 + 0x180处
 ```
 #define CKSEG0			_CONST64_(0xffffffff80000000)
 ebase = CKSEG0 // ebase=0xffffffff80000000
@@ -216,4 +216,5 @@ __BUILD_SET_C0(config)
 # 5 参考资料
 * Cavium OCTEON III CN71XX Hardware Reference Manual
 * [Mips 中断处理分析](http://blog.chinaunix.net/uid-28236237-id-3913639.html)
+* [MIPS中的异常处理和系统调用](https://blog.csdn.net/jasonchen_gbd/article/details/44044091)
 
