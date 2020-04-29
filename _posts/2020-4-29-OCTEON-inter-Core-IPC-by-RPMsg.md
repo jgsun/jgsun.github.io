@@ -2,7 +2,7 @@
 layout: post
 title: "OCTEON inter Core IPC by RPMsg/virtio"
 categories: IO
-tags: octeon, AMP linux, MIPS, RPMsg/virtio
+tags: octeon, AMP linux, MIPS, RPMsg/virtio, openAMP
 author: jgsun
 ---
 
@@ -26,47 +26,23 @@ author: jgsun
 系统框图如下所示：
 ![image](/images/posts/rpmsg/system.png)
 
-
 * 注：图中浅蓝色背景的是open-source的linux内核代码， 深蓝色背景是project开发的代码，同时也修改了 linux内核rpmsg_core和virtio 部分代码 。
 
-
-
 系统框图体现了 RPMsg三层协议，额外 在 Transport Layer上增加了User interface Layer，用于向user space导出misc字符设备和网络设备。
-
 关于 RPMsg协议，可参考  [RPMsg Messaging Protocol](https://github.com/OpenAMP/open-amp/wiki/RPMsg-Messaging-Protocol)
 > The whole communication implementation can be separated in three different ISO/OSI layers - Transport, Media Access Control and Physical layer. Each of them can be implemented separately and for example multiple implementations of the Transport Layer can share the same implementation of the MAC Layer (VirtIO) and the Physical Layer. Each layer is described in following sections.
 ![image](/images/posts/rpmsg/rpmsg-protocol.jpg)
 
-
-
-
-
-
-
-
-
 # 2. RPMsg dirver init
-
 ## 2.1 初始化框图
 下图从设备驱动模型（总线，设备，驱动）的角度，描述了驱动初始化流程：包括3 条总线（platform_bus，virtio_bus和rpmsg_bus）及对应的 3个驱动（nokia_rpmsg_driver, virtio_ipc_driver 和 rpmsg_interface_drv）和3个设备（图中 未画出 platform bus）。
 * 从驱动模型角度，可以从复杂的驱动逻辑中拨云见日，迅速摸清真相。
 ![image](/images/posts/rpmsg/driver-probe.png)
 
-
-
-
-
-
-
-
 ## 2.2 driver初始化 序列图
 ![image](/images/posts/rpmsg/rpmsg-driver-init.png)
 
-
-
-
 * 注：上图是master端的 驱动初始化，remote端在buffer的处理上稍有不同，代码中使用rpmsg_role区分。
-
 
 核心完成下列任务：
 （1）创建收发TX/RX vritquque，注册 vritquque的 TX/RX的 notify(nokia_rpmsg_notify)/callback(rpmsg_recv_done)
@@ -74,69 +50,44 @@ author: jgsun
 （3）注册misc字符设备和网络设备
 （4）注册接收中断的callback（octeon_rpmsg_irq_handler）
 （5）建立channle接收工作队列结构（rpmsg_channel_delaywork，处理函数是rpmsg_work_handler），插入接收队列链表rpmsg_dw_info[RX]
-# 3. RPMsg 接收序列图
+# 3. RPMsg IO序列图
 
+## 3.1 RX
 ![image](/images/posts/rpmsg/rpmsg-rx.png)
 
 
-
-
-## 3.1  rpmsg_miscdev_read
+## 3.1.1  rpmsg_miscdev_read
 ```
-
 rpmsg_miscdev_read
     DECLARE_WAITQUEUE(wait, current)
-
     add_wait_queue(&misc_ept_priv->r_wait, &wait)
-
     __set_current_state(TASK_INTERRUPTIBLE)
-
     schedule()
-
     copy_to_user(ubuff, misc_ept_priv->mem, count)
-
     wake_up_interruptible(&misc_ept_priv->w_wait)
-
     remove_wait_queue(&misc_ept_priv->r_wait, &wait)
-
     __set_current_state(TASK_RUNNING)
-
 ```
-## 3.2  rpmsg_work_handler
+## 3.1.2  rpmsg_work_handler
 一旦收到IPI中断，其中断处理函数mailbox_interrupt调用 octeon_rpmsg_irq_handler，获取 channel之后的 调度该channle的工作队列处理函数 rpmsg_work_handler：
 master端 rpmsg_work_handler流程：
 ```
-
 rpmsg_work_handler
     vring_interrupt
-
         vq->vq.callback(&vq->vq) //调用rpmsg_probe创建vq时设置的rpmsg_recv_done
-
             virtqueue_get_buf
-
             rpmsg_recv_single(vrp, dev, msg, len)
-
-                ept->cb(ept->rpdev, msg->data, msg->len, ept->priv //调用创建endpoint时设置的rpmsg_misc_dev_ept_cb
-
+                ept->cb(ept->rpdev, msg->data, msg->len, ept->priv //调用rpmsg_misc_dev_ept_cb
                 virtqueue_add_inbuf //back fill inbuf
-
                     virtqueue_add
                virtqueue_get_buf //get next buffer?
 ```
-# 4.  RPMsg 发送序列图
+## 3.2  RPMsg TX序列图
 ![image](/images/posts/rpmsg/rpmsg-tx.png)
 
-
-
-
-
-
-## 4.1 misc设备初始化， I/O框图
-![image](/images/posts/rpmsg/miscdev.png)
-
+## 3.3 rpmsg_miscdev_write
 master端rpmsg_miscdev_write流程：
 ```
-
 rpmsg_miscdev_write
     rpmsg_sendto(misc_ept_priv->rpmsg_chnl, tx_buff, size, misc_ept_priv->ept_num)
         ept->ops->sendto(ept, data, len, dst) //调用virtio_rpmsg_sendto
@@ -149,13 +100,13 @@ rpmsg_miscdev_write
                         vq->notify(_vq) //调用nokia_rpmsg_notify
                             rpmsg_irq_trigger //调用 rpmsg_irq_trigger   发送IPI中断
 ```
+## 3.4 misc设备初始化， I/O框图
+![image](/images/posts/rpmsg/miscdev.png)
 
-## 4.2 网络设备初始化，I/O框图
+## 3.5 网络设备初始化，I/O框图
 ![image](/images/posts/rpmsg/ethdev.png)
 
-
-
-# 5. DTS及mailbox中断机制
+# 4. DTS及mailbox中断机制
 DTS指定 share memory地址和中断ID号。
 ```
   rpmsg0 {
@@ -177,14 +128,14 @@ DTS指定 share memory地址和中断ID号。
    status = "okay";
   };
 ```
-## 5.1 share memory地址
+## 4.1 share memory地址
 下图红圈部分，地址范围0x9F000000-0x9FFFFFFF一共16M， 在u-boot的dts里面设置memreserve。
 ![image](/images/posts/rpmsg/memory-map.png)
 
 
-## 5.2 octeon mailbox中断机制
+## 4.2 octeon mailbox中断机制
 
-### 5.2.1 mailbox中断初始化
+### 4.2.1 mailbox中断初始化
 (1) 中断控制器初始化时， 分配 mailbox 中断中断描述符
 ```
 octeon_irq_init_ciu
@@ -197,31 +148,26 @@ octeon_irq_init_ciu
 ```
 kernel_init_freeable
     smp_prepare_cpus
-
           octeon_prepare_cpus
                cvmx_write_csr(CVMX_CIU_MBOX_CLRX(coreid), mask)
                request_irq(OCTEON_IRQ_MBOX0, mailbox_interrupt, IRQF_PERCPU
 ```
 request_irq加了 IRQF_PERCPU标志，表示OCTEON_IRQ_MBOX0（105）这个中断线是per cpu的，即每个CPU看到的是不同的控制寄存器。
 
-### 5.2.2 mailbox中断 发送
+### 4.2.2 mailbox中断 发送
 通过调用octeon_smp_ops的send_ipi_single来发送IPI
 `ops->send_ipi_single -->> octeon_smp_ops->octeon_send_ipi_single`
-### 5.2.3 mainbox中断 接收
-
+### 4.2.3 mainbox中断 接收
 从前面知， mainbox中断 接收函数是 mailbox_interrupt，读取Mailbox Clear Registers，发现哪个bit置位，查找octeon_message_functions数组获取对应bit的处理函数并调用。
 ![image](/images/posts/rpmsg/octeon-mailbox-clear-reg.png)
 
 
 ![image](/images/posts/rpmsg/octeon-mailbox-set-reg.png)
 
-
-
 一共 可以支持32种mainbox消息，目前内核使用了前4个bit（ scheduler_ipi，  generic_smp_call_function_interrupt， octeon_icache_flush和网络驱动cvm_oct_enable_napi   ）。
 rpmsg irq驱动 调用octeon_request_ipi_handler注册每个channle的中断接收处理函数到 octeon_message_functions数组。
 
 ```
-
 static void (*octeon_message_functions[8])(void) = {
  scheduler_ipi,
  generic_smp_call_function_interrupt,
@@ -231,9 +177,9 @@ static void (*octeon_message_functions[8])(void) = {
 #endif
 };
 ```
-# 6. RPMsg/virtio通信机制
+# 5. RPMsg/virtio通信机制
 
-## 6.1  RPMsg framework overview
+## 5.1  RPMsg framework overview
  关于 RPMsg framework，可参考    [Linux RPMsg framework overview]( https://wiki.st.com/stm32mpu/wiki/Linux_RPMsg_framework_overview ) .
 > The RPMsg framework is a virtio-based messaging bus that allows a local processor to communicate with remote processors available on the system. 
 The Linux® RPMsg framework is a messaging mechanism implemented on top of the virtio framework to communicate with a remote processor. It is based on virtio vrings to send/receive messages to/from the remote CPU over shared memory.
@@ -256,7 +202,7 @@ Overviews of the communication mechanisms involved are available at:  [OpenAMP w
 *  [NXP_RPMSG_protocol_standardization_kick_off](http://openamp.github.io/docs/2016.10/NXP_RPMSG_protocol_standardization_kick_off.pdf)
 
 
-## 6.2 virtio  Vring 结构
+## 5.2 virtio  Vring 结构
 
 关于 virtio  Vring 结构，可参考：   [RPMsg Messaging Protocol](https://github.com/OpenAMP/open-amp/wiki/RPMsg-Messaging-Protocol)和 [OpenAMP RPMsg Virtio Implementation](https://github.com/OpenAMP/open-amp/wiki/OpenAMP-RPMsg-Virtio-Implementation)
 > Vring is composed of three elementary parts - buffer descriptor pool, the “available” ring buffer (or input ring buffer) and the “used” ring buffer (or free ring buffer). All three elements are physically stored in the shared memory.
@@ -277,8 +223,8 @@ Overviews of the communication mechanisms involved are available at:  [OpenAMP w
 ![image](/images/posts/rpmsg/rpmsg-buffer-management.jpg)
 
 
-## 6.3  RPMsg channel, endpoints和misc，ethernet设备
-### 6.3.1 图示
+## 5.3  RPMsg channel, endpoints和misc，ethernet设备
+### 65.3.1 图示
 ![image](/images/posts/rpmsg/rpmsg-endpoint-ch1.png)
 
 channel1：
@@ -287,16 +233,15 @@ channel2：
 ![image](/images/posts/rpmsg/rpmsg-endpoint-ch2.png)
 
 
-### 6.3.2 misc device
+### 5.3.2 misc device
 `/dev/rpmsg1_13`中，1是channel number， 13是endpoints number，分别对应dts里面的channle-index和misc-dev-endpoints
 
 ```
 /mnt # ls /dev/rpmsg*
 /dev/rpmsg1_13  /dev/rpmsg2_23
 ```
-### 6.3.3 ethernet device
+### 5.3.3 ethernet device
 `/dev/rpmsg1_13`中，1是channel number， 14是endpoints number，分别对应dts里面的channle-index和eth-dev-endpoints
-
 ```
 rpmsg1_14 Link encap:Ethernet  HWaddr 00:00:00:00:00:01  
           BROADCAST MULTICAST  MTU:482  Metric:1
@@ -304,8 +249,6 @@ rpmsg1_14 Link encap:Ethernet  HWaddr 00:00:00:00:00:01
           TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
           collisions:0 txqueuelen:1000 
           RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
-
-
 rpmsg2_24 Link encap:Ethernet  HWaddr 00:00:00:00:00:01  
           BROADCAST MULTICAST  MTU:482  Metric:1
           RX packets:0 errors:0 dropped:0 overruns:0 frame:0
@@ -313,36 +256,25 @@ rpmsg2_24 Link encap:Ethernet  HWaddr 00:00:00:00:00:01
           collisions:0 txqueuelen:1000 
           RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
 ```
-## 6.4  RPMsg Communication Flow
+## 5.4  RPMsg Communication Flow
 下图出自：[RPMsg Communication Flow](https://github.com/OpenAMP/open-amp/wiki/RPMsg-Communication-Flow)，在此基础上标注了相应的API。
 ![image](/images/posts/rpmsg/rpmsg-transaction-sequence-master-to-remote.jpg)
 
-
-
 ![image](/images/posts/rpmsg/rpmsg-transaction-sequence-remote-to-master.jpg)
-
 
 下图从 vring使用情况的角度 描述了通信过程：
 以单一channel为例，每个channel分配两快vring，每个 vring由 vring_desc, vring_avail和vring_used  3个部分组成，每个vring分256个vring_desc， vring_desc的 地址变量指向数据buffer，vring_avail和vring_used是存放参与通信的vring_desc ID，组成FIFO队列。
 ![image](/images/posts/rpmsg/vring-master-rx.png)
-
-
 ![image](/images/posts/rpmsg/vring-master-tx.png)
 
-
-
-
-
-
-
-
-## 6.5 实验log
-### 6.5.1 misc设备通信
+## 5.5 实验log
+### 5.5.1 misc设备通信
 core0 发送， u-boot设置启动参数logleve=8情况下：
 ```
 /mnt # echo 1 > /dev/rpmsg1_13 
 [ 1347.962087] (c01  3621        sh) rpmsg_ifc_drv virtio0.nokia-fsproxy-channel.11.12: TX From 0xb, To 0xd, Len 2, Flags 0, Reserved 0
-[ 1347.974130] (c00  3621        sh) rpmsg_virtio tx: 00 00 00 0b 00 00 00 0d 00 00 00 00 00 02 00 00  ................
+[ 1347.974130] (c00  3621        sh) rpmsg_virtio tx: 00 00 00 0b 00 00 00 0d 00 00 00 00 00 02 00 00  
+... ...
 [ 1347.984695] (c00  3621        sh) rpmsg_virtio tx: 31 0a                                            1.
 [ 1347.994043] (c00  3621        sh) virtqueue_add(359)desc[3].flags=0x0
 [ 1348.000514] (c00  3621        sh) vq->vring.avail@800000009f009000
@@ -375,15 +307,11 @@ core1接收log：
 [ 1348.214032] (c00    26 kworker/0) I am in RX path
 [ 1348.218747] (c00    26 kworker/0) virtio_rpmsg_bus virtio0: Received 1 messages
 ```
-### 6.5.2 网络设备通信
+### 5.5.2 网络设备通信
 设置corel0和core1网络接口IP地址为相同网段，就能相互ping通。
 关闭debug log：  `echo 4 > /proc/sys/kernel/printk`
-
-
-
- core0
- core1
- 设置ip ifconfig rpmsg1_14 192.168.2.2 up
+```
+ ifconfig rpmsg1_14 192.1hu68.2.2 up
  ifconfig rpmsg2_24 10.10.2.2 up
  ifconfig rpmsg1_14 192.168.2.3 up
  ifconfig rpmsg2_24 10.10.2.3 up
@@ -396,10 +324,9 @@ core1接收log：
  PING 10.10.2.2 (10.10.2.2): 56 data bytes
  64 bytes from 10.10.2.2: seq=1 ttl=64 time=30.054 ms
  64 bytes from 10.10.2.2: seq=1 ttl=64 time=34.636 ms
+```
 
-
-### 6.5.3 查询每个channle的中断计数
-
+### 5.5.3 查询每个channle的中断计数
 ```
 / # cat /sys/rpmsg1/interrupts 
 rx: 8
@@ -408,10 +335,8 @@ tx: 12
 rx: 6
 tx: 5
 ```
-# 7. 参考资料
-
+# 6. 参考资料
 * http://openamp.github.io/
-
 * https://github.com/OpenAMP/open-amp/wiki
 * [NXP_RPMSG_protocol_standardization_kick_off](http://openamp.github.io/docs/2016.10/NXP_RPMSG_protocol_standardization_kick_off.pdf)
 * [OpenAMP RPMsg Virtio Implementation]( https://github.com/OpenAMP/open-amp/wiki/OpenAMP-RPMsg-Virtio-Implementation )
