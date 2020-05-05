@@ -11,6 +11,25 @@ author: jgsun
 {:toc}
 # 1. Overview
 Coder Technologies Inc, an Austin TX company 公司开源了一个基于服务器端的 VScode -- code-server，只要服务器端配置好code-server，就可以在任何浏览器上使用VScode 。code-server目前还不支持在线安装插件，不过它提供了.VSIX方式的安装，本文提供了一种安装插件及配置code-server的简单易行的方法，使用github托管vscode的插件和配置文件，启动docker之后创建插件和配置的软链接即可。不用每次启动docker后离线安装VSIX，也不用重新定制带插件和配置的docker image。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 * 关于code-server： 参考 : https://github.com/cdr/code-server
 ·code-server is VS Code running on a remote server, accessible through the browser.·
 * docker运行code-server，参考: https://hub.docker.com/r/codercom/code-server
