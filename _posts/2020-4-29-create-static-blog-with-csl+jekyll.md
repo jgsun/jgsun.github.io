@@ -85,18 +85,22 @@ gem install jekyll-paginate
 
 ```
 
-jiangusu@CV0019059N0:~$ cd /cygdrive/c/work/blog/jgsun.github.io;jekyll server --watch;
-Configuration file: /cygdrive/c/work/blog/jgsun.github.io/_config.yml
-            Source: /cygdrive/c/work/blog/jgsun.github.io
-       Destination: /cygdrive/c/work/blog/jgsun.github.io/_site
+jgsun@N-20L6PF1QDMGJ:~/work/jgsun.github.io$ jekyll server --watch;
+Configuration file: /home/jgsun/work/jgsun.github.io/_config.yml
+            Source: /home/jgsun/work/jgsun.github.io
+       Destination: /home/jgsun/work/jgsun.github.io/_site
  Incremental build: disabled. Enable with --incremental
       Generating... 
-                    done in 11.424 seconds.
-  Please add the following to your Gemfile to avoid polling for changes:
-    gem 'wdm', '>= 0.1.0' if Gem.win_platform?
- Auto-regeneration: enabled for '/cygdrive/c/work/blog/jgsun.github.io'
+                    done in 6.258 seconds.
+                    Auto-regeneration may not work on some Windows versions.
+                    Please see: https://github.com/Microsoft/BashOnWindows/issues/216
+                    If it does not work, please upgrade Bash on Windows or run Jekyll with --no-watch.
+ Auto-regeneration: enabled for '/home/jgsun/work/jgsun.github.io'
     Server address: http://127.0.0.1:4001/
   Server running... press ctrl-c to stop.
+      Regenerating: 1 file(s) changed at 2020-05-05 16:43:20
+                    _posts/2020-4-30-code-server.md
+                    ...done in 1.2951866 seconds.
 ```
 然后在浏览器打开http://127.0.0.1:4001/就可以预览了。
 
