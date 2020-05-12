@@ -143,8 +143,7 @@ x86_64-unknown-linux-gnu-ar x86_64-unknown-linux-gnu-dwp x86_64-unknown-linux-gn
 ```
 # 3. buildroot使用external toolchain
 首先按下图配置toolchain：
-![image](/images/posts/images/posts/build/buildroot-ex-toolchain.png)
-
+![image](/images/posts/build/buildroot-ex-toolchain.png)
 
 然后make编译，toolchain被就被安装到了output/host/bin目录，可以使用了。
 ```
