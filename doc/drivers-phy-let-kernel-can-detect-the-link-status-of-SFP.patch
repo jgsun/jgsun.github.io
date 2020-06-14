@@ -1,0 +1,185 @@
+From cd6bf167ef8b35be1f8f79bd1b038ab4fa2a7667 Mon Sep 17 00:00:00 2001
+From: jiangusu <jianguo_sun@hotmail.com>
+Date: Tue, 18 Sep 2018 01:39:14 -0400
+Subject: [PATCH] drivers: phy: let kernel can detect the link status of SFP
+ module
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Now we can't detect the link status of SFP in kernel space and do it by libsfp's API in
+user space, so some open source tools like ethtool can't get the SFP's real link status,
+the result always is “Link detected: yes” with or without SFP module.
+
+Another problem is the memory leak issue in AP: it's mac9 port can transmit arp packets
+from bridge since the net stack sees SFP's link status is "yes" when no SFP module attached.
+In this case the dpaa driver can't free the skb buffer because of no tx_confirm hardware
+interrupt, and causes memory leak.
+The steps to repruduce this memory leak issue:
+1.create wigi link between AP and HOU normally.
+2.add fm1-mac3 to bridge1 of HOU.
+3.don't insert SFP to AP.
+4.connect hou net cable to a labtop and send ping packet from the labtop's eth port.
+5.we can capture ARP request packets on wigi interface of AP and HOU seperately.
+6.By running slabtop in AP, the object kmalloc-4096 increases and the free memory
+decreases at the same time.
+
+The patch lets kernel can detect the link status of SFP module by reading it's los and
+present signal through GPIO.
+---
+ .../boot/dts/freescale/fsl-ls1043a-rdb-ap.dts    |  3 +++
+ drivers/net/phy/phy.c                              | 11 ++++++++++
+ drivers/net/phy/phy_device.c                       | 12 +++++++++++
+ drivers/of/of_mdio.c                               | 25 ++++++++++++++++++++++
+ include/linux/phy.h                                |  5 +++++
+ 5 files changed, 56 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb-ap.dts b/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb-ap.dts
+index c16315d..569dad4 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb-ap.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a-rdb-ap.dts
+@@ -138,6 +138,9 @@
+ 			compatible = "ethernet-phy-ieee802.3-c45";
+ 			interrupts = <0 132 4>;
+ 			reg = <0x1>;
++			los_gpio = <&gpio1 9 0>;
++			present_gpio = <&gpio1 4 0>;
++
+ 		};
+ 	};
+ };
+diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
+index b79a488..f36e401 100644
+--- a/drivers/net/phy/phy.c
++++ b/drivers/net/phy/phy.c
+@@ -819,6 +819,17 @@ void phy_state_machine(struct work_struct *work)
+ 			break;
+ 		}
+ 
++		/* added for ap:
++		 * we do negotiation in user space, here we only call
++		 * netif_carrier_on and set state to PHY_RUNNING.
++		 */
++		if (!strncmp(phydev->bus->id, MAC9_MDIO_ID, sizeof(MAC9_MDIO_ID))) {
++			phydev->state = PHY_RUNNING;
++			netif_carrier_on(phydev->attached_dev);
++			phydev->adjust_link(phydev->attached_dev);
++			break;
++		}
++
+ 		/* Check if negotiation is done.  Break if there's an error */
+ 		err = phy_aneg_done(phydev);
+ 		if (err < 0)
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index 1005ed9..21d0e5f 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -36,6 +36,7 @@
+ #include <linux/of.h>
+ /* for ap PHY */
+ #include <linux/brcmphy.h>
++#include <linux/of_gpio.h>
+ 
+ #include <asm/irq.h>
+ 
+@@ -1120,6 +1121,9 @@ static int gen10g_read_status(struct phy_device *phydev)
+ 	int devad, reg;
+ 	u32 mmd_mask = phydev->c45_ids.devices_in_package;
+ 
++	/* added for ap */
++	int los_signal = 1, present_signal = 1;
++
+ 	phydev->link = 1;
+ 
+ 	/* For now just lie and say it's 10G all the time */
+@@ -1139,6 +1143,14 @@ static int gen10g_read_status(struct phy_device *phydev)
+ 			phydev->link = 0;
+ 	}
+ 
++	/* added for ap */
++	if (!strncmp(phydev->bus->id, MAC9_MDIO_ID, sizeof(MAC9_MDIO_ID))) {
++		los_signal = gpio_get_value_cansleep(phydev->los_gpio);
++		present_signal = gpio_get_value_cansleep(phydev->present_gpio);
++		dev_dbg(&phydev->dev, "los_signal=%d, present_signal=%d\n", los_signal, present_signal);
++		phydev->link = (los_signal == 0) && (present_signal == 0);
++	}
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/of/of_mdio.c b/drivers/of/of_mdio.c
+index bec8ec2..43969f3 100644
+--- a/drivers/of/of_mdio.c
++++ b/drivers/of/of_mdio.c
+@@ -19,6 +19,7 @@
+ #include <linux/of_irq.h>
+ #include <linux/of_mdio.h>
+ #include <linux/module.h>
++#include <linux/of_gpio.h>
+ 
+ MODULE_AUTHOR("Grant Likely <grant.likely@secretlab.ca>");
+ MODULE_LICENSE("GPL");
+@@ -47,6 +48,7 @@ static int of_mdiobus_register_phy(struct mii_bus *mdio, struct device_node *chi
+ 	bool is_c45;
+ 	int rc;
+ 	u32 phy_id;
++	enum of_gpio_flags flags;
+ 
+ 	is_c45 = of_device_is_compatible(child,
+ 					 "ethernet-phy-ieee802.3-c45");
+@@ -55,6 +57,7 @@ static int of_mdiobus_register_phy(struct mii_bus *mdio, struct device_node *chi
+ 		phy = phy_device_create(mdio, addr, phy_id, 0, NULL);
+ 	else
+ 		phy = get_phy_device(mdio, addr, is_c45);
++
+ 	if (!phy || IS_ERR(phy))
+ 		return 1;
+ 
+@@ -68,6 +71,28 @@ static int of_mdiobus_register_phy(struct mii_bus *mdio, struct device_node *chi
+ 			phy->irq = mdio->irq[addr];
+ 	}
+ 
++	/* added for ap */
++	if (!strncmp(phy->bus->id, MAC9_MDIO_ID, sizeof(MAC9_MDIO_ID))) {
++		phy->los_gpio = of_get_named_gpio_flags(child, "los_gpio", 0, &flags);
++		printk("phy->los_gpio: %d\n", phy->los_gpio);
++		if (unlikely(!gpio_is_valid(phy->los_gpio)))
++			printk("gpio %d is invalid\n", phy->los_gpio);
++		rc = devm_gpio_request_one(&phy->dev, phy->los_gpio, GPIOF_IN,
++				dev_name(&phy->dev));
++		if (unlikely(rc))
++			printk("devm_gpio_request_one: request gpio %d failed\n", phy->los_gpio);
++
++		phy->present_gpio = of_get_named_gpio_flags(child, "present_gpio", 0, &flags);
++		printk("phy->present_gpio: %d\n", phy->present_gpio);
++		if (unlikely(!gpio_is_valid(phy->present_gpio)))
++			printk("gpio %d is invalid\n", phy->present_gpio);
++		rc = devm_gpio_request_one(&phy->dev, phy->present_gpio, GPIOF_IN,
++				dev_name(&phy->dev));
++		if (unlikely(rc))
++			printk("devm_gpio_request_one: request gpio %d failed\n", phy->present_gpio);
++	}
++
++
+ 	/* Associate the OF node with the device structure so it
+ 	 * can be looked up later */
+ 	of_node_get(child);
+diff --git a/include/linux/phy.h b/include/linux/phy.h
+index 27fc317..c56b302 100644
+--- a/include/linux/phy.h
++++ b/include/linux/phy.h
+@@ -425,6 +425,11 @@ struct phy_device {
+ 	struct net_device *attached_dev;
+ 
+ 	void (*adjust_link)(struct net_device *dev);
++
++	/* special for ap */
++	int los_gpio;
++	int present_gpio;
++	#define MAC9_MDIO_ID "1afd000"
+ };
+ #define to_phy_device(d) container_of(d, struct phy_device, dev)
+ 
+-- 
+1.8.3.1
+
