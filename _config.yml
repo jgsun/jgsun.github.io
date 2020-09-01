@@ -7,7 +7,7 @@
 
 # Site settings
 title: jgsun's blog
-brief-intro: Embedded Software
+brief-intro: Embedded Linux Software
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://jgsun.github.io" # the base hostname & protocol for your site
 
