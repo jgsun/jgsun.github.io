@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "OCTEON MIPS 中断处理"
-categories: interrupt
+categories: process
 tags: MIPS, OCTEON, exeception, interrupt 
 author: jgsun
 ---

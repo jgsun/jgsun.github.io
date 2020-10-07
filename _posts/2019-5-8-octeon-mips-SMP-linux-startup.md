@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "OCTEON MIPS SMP linux多核启动"
-categories: arch
+categories: system
 tags: OCTEON, SMP linux, MIPS
 author: jgsun
 ---

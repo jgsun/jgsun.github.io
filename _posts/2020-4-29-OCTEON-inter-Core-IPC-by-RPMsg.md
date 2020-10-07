@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "OCTEON inter Core IPC by RPMsg/virtio"
-categories: IO
+categories: system
 tags: octeon, AMP linux, MIPS, RPMsg/virtio, openAMP
 author: jgsun
 ---
