@@ -10,7 +10,7 @@ author: jgsun
 {:toc}
 
 # 安装Ubuntu Server 20.04.2 LTS
-ubuntu 官方guide： How to install Ubuntu Server on your Raspberry Pi
+ubuntu 官方guide： [How to install Ubuntu Server on your Raspberry Pi](https://ubuntu.com/tutorials/how-to-install-ubuntu-on-your-raspberry-pi#5-install-a-desktop)
 非常详细，这里就不再赘述，照着操作即可。
 RaspberryPi wiki 提供更多细节，例如启用serial console等，感兴趣可以参考。
 >For more details about Raspberry Pi specific packages included with this image and further customisations, such as accelerated video drivers and optional package repositories, you can refer to the [RaspberryPi wiki](https://wiki.ubuntu.com/ARM/RaspberryPi#Packages) .
@@ -88,6 +88,7 @@ ping 有些网卡 eth0 time， 可见小于 1 ms：
 
 
 # 参考文档
+[How to install Ubuntu Server on your Raspberry Pi](https://ubuntu.com/tutorials/how-to-install-ubuntu-on-your-raspberry-pi#5-install-a-desktop)
 
 [RaspberryPi wiki](https://wiki.ubuntu.com/ARM/RaspberryPi#Packages)
 
