@@ -2,7 +2,7 @@
 layout: post
 title: "Raspberry Pi4 安装 ubuntu server 20.04"
 category: build
-tags: Raspberry Pi4 ubuntu server 20.04
+tags: Raspberry-Pi4 ubuntu-server
 author: jgsun
 ---
 
@@ -10,6 +10,7 @@ author: jgsun
 {:toc}
 
 # 安装Ubuntu Server 20.04.2 LTS
+
 ubuntu 官方guide： [How to install Ubuntu Server on your Raspberry Pi](https://ubuntu.com/tutorials/how-to-install-ubuntu-on-your-raspberry-pi#5-install-a-desktop)
 非常详细，这里就不再赘述，照着操作即可。
 RaspberryPi wiki 提供更多细节，例如启用serial console等，感兴趣可以参考。
