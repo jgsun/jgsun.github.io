@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "在code-server中搭建 C++ 开发环境"
+title: "在 code-server 中搭建 C++ 开发环境"
 category: build
 tags: code-server GDB C++ Run-and-Debug
 author: jgsun
