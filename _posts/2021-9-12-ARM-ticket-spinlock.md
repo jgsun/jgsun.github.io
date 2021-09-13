@@ -53,8 +53,9 @@ static inline void arch_spin_lock(arch_spinlock_t *lock)
     __asm__ __volatile__(
 "1:    ldrex    %0, [%3]\n"         // 将 lock->slock 加载到 lockval, monitor 标记为 exclusive
 "    add    %1, %0, %4\n"         // 将 lockval + 1, 保存到 newval
-"    strex    %2, %1, [%3]\n"     // 将 newval store 到 lock->slock，如 monitor 仍为 exclusive，
-                                       // 则 store 成功并置 tmp 为0，否则 store 不成功置tmp为非0
+"    strex    %2, %1, [%3]\n"     // 将 newval store 到 lock->slock，如 monitor state 仍为 exclusive，
+                                       // 则 store 成功，monitor state 变为 open，并置 tmp 为0，否则 store 不成功置 tmp 为非0
+                                      // 如果这期间如果有其它处理器 store，monitor state 将为 open
 "    teq    %2, #0\n"               // 判断tmp是否为0
 "    bne    1b"                       // 如果非0，返回1继续
     : "=&r" (lockval), "=&r" (newval), "=&r" (tmp)
@@ -182,6 +183,7 @@ static inline void arch_spin_unlock(arch_spinlock_t *lock)
 ```
 # 参考资料
 * [Arm Architecture Reference Manual Armv8, for A-profile architecture](https://developer.arm.com/documentation/ddi0487/gb/)  B2.9 Synchronization and semaphores
+* [罗玉平： 关于ARM Linux原子操作的底层支持](https://blog.csdn.net/juS3Ve/article/details/81784688)
 * [ARM Synchronization Primitives Development Article](https://developer.arm.com/documentation/dht0008/a/)
 * [ARMv8-A synchronization primitives](https://developer.arm.com/documentation/100934/0100)
 * [6.47 How to Use Inline Assembly Language in C Code](https://gcc.gnu.org/onlinedocs/gcc/Using-Assembly-Language-with-C.html#Using-Assembly-Language-with-C)
