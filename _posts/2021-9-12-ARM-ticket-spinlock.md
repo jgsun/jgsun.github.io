@@ -10,7 +10,11 @@ author: jgsun
 {:toc}
 
 # Overview
-这是一个有点过时的题目，因为 spin_lock 已经演进到性能更好的 qsbinlock：X86 enabled qspinlock support in kernel  v4.2. [Locking changes for v4.2](http://lkml.iu.edu/hypermail/linux/kernel/1506.2/04205.html), Arm64 changed the default spinlock to qspinlock after the kernel 4.16rc6. 但是研究 ARM ticket spinlock 的实现可以学习 spin_lock 的进化，学习ARM atomic 操作和 ARM inline 汇编，所以记录下来方便自己以后查阅。
+这是一个有点过时的题目，因为 spin_lock 已经演进到性能更好的 qsbinlock：
+* X86 enabled qspinlock support in kernel  v4.2. [Locking changes for v4.2](http://lkml.iu.edu/hypermail/linux/kernel/1506.2/04205.html), 
+* Arm64 changed the default spinlock to qspinlock after the kernel 4.16rc6.
+
+但是研究 ARM ticket spinlock 的实现可以学习 spin_lock 的进化，学习ARM atomic 操作和 ARM inline 汇编，所以记录下来方便自己以后查阅。
 ![image](/images/posts/process/lock/ticket-spinlock.png)
 
 
@@ -33,14 +37,18 @@ author: jgsun
 
 
 # ARM V6
-Arm 的 arch_spin_lock 还是才有的 ticket spinlock， 源码位于 [5.14.2: arch/arm/include/asm/spinlock.h](https://elixir.bootlin.com/linux/v5.14.2/source/arch/arm/include/asm/spinlock.h#L56)
+Arm 的 arch_spin_lock 还是使用 ticket spinlock， 源码位于：
+* [5.14.2: arch/arm/include/asm/spinlock.h](https://elixir.bootlin.com/linux/v5.14.2/source/arch/arm/include/asm/spinlock.h#L56)
+
 ## 加锁 arch_spin_lock
 加锁时先将 next 保存到本地变量 lockval.tickets.next，然后将 next +1， owne保持不变。
-（1）初始化 lock.tickets.next 和lock.tickets.owner 都等于0；
-（2）C0第一个加锁的立即获取锁，同时next +1， 所以这时候 lock.tickets.next =1，lock.tickets.owner = 0；
-（3）C1试图获取锁，lockval.tickets.next =1，而 lockval.tickets.owner = 0；所以 wfe 进入low-power模式
-（4）C0释放锁，owner++， lock.tickets.owner = 1，发 SEV 唤醒 C1
-（5）C1 读取 lock.tickets.owner =1 和 lock.tickets.next 相等从而获取锁。
+
+1. 初始化 lock.tickets.next 和lock.tickets.owner 都等于0；
+2. C0第一个加锁的立即获取锁，同时next +1， 所以这时候 lock.tickets.next =1，lock.tickets.owner = 0；
+3. C1试图获取锁，lockval.tickets.next =1，而 lockval.tickets.owner = 0；所以 wfe 进入low-power模式
+4. C0释放锁，owner++， lock.tickets.owner = 1，发 SEV 唤醒 C1
+5. C1 读取 lock.tickets.owner =1 和 lock.tickets.next 相等从而获取锁。
+
 ```
 static inline void arch_spin_lock(arch_spinlock_t *lock)
 {
@@ -100,12 +108,21 @@ static inline void arch_spin_unlock(arch_spinlock_t *lock)
 }
 ```
 # ARM64
-ARM64 在3.13 实现ticket lock，Arm64 changed the default spinlock to qspinlock after the kernel 4.16rc6, 4.19 Arm64 ticket lock 从内核消失。
-最新版本 ARM64 的 arch_spin_lock 已经定义为 queued_spin_lock。
-[v5.14.2: arch/arm64/include/asm/spinlock.h](https://elixir.bootlin.com/linux/v5.14.2/source/arch/arm64/include/asm/spinlock.h) `#include <asm/qspinlock.h>`  
-[v5.14.2: include/asm-generic/qspinlock.h](https://elixir.bootlin.com/linux/v5.14.2/source/include/asm-generic/qspinlock.h)  `#define arch_spin_lock(l)        queued_spin_lock(l)`
-所以 ARM64 ticket lock的实现在 4.18.20 版本，4.19 以后的内核删除了ARM64 ticket lock. [4.18.20: arch/arm64/include/asm/spinlock.h](https://elixir.bootlin.com/linux/v4.18.20/source/arch/arm64/include/asm/spinlock.h)
+ARM64 在3.13 实现了ticket lock，Arm64 changed the default spinlock to qspinlock after the kernel 4.16rc6, 4.19 Arm64 ticket lock 从内核消失了。
+
+最新版本 ARM64 的 arch_spin_lock 已经定义为 queued_spin_lock。详见源码：
+
+| source file | source code |
+| --- | --- |
+| [v5.14.2: arch/arm64/include/asm/spinlock.h](https://elixir.bootlin.com/linux/v5.14.2/source/arch/arm64/include/asm/spinlock.h) | `#include <asm/qspinlock.h>` |
+| [v5.14.2: include/asm-generic/qspinlock.h](https://elixir.bootlin.com/linux/v5.14.2/source/include/asm-generic/qspinlock.h)|`#define arch_spin_lock(l)        queued_spin_lock(l)` |
+
 ## 加锁 arch_spin_lock
+
+前面提到 4.19 以后的内核删除了ARM64 ticket lock，其最后出现内核的版本是 4.18.20：
+* [4.18.20: arch/arm64/include/asm/spinlock.h](https://elixir.bootlin.com/linux/v4.18.20/source/arch/arm64/include/asm/spinlock.h)
+
+
 ARMv8.1开始，ARM推出了用于原子操作的LSE(Large System Extension)指令集扩展，比LL/SC的实现方式简洁了很多，arch_spin_lock 全部使用汇编实现。
 ```
 static inline void arch_spin_lock(arch_spinlock_t *lock)

@@ -11,7 +11,8 @@ author: jgsun
 
 # Overview
 
-工欲善其事必先利其器！
+”工欲善其事, 必先利其器！“
+
 前几天想更新下code-server的docker image，修改完成 github 内的 Dockerfile，去 docker hub 查看 image 的 build 情况，发现自动 build iamge 的功能收费了！毕竟天下没有永远免费的午餐，按照同事的说法，其也该收费了。利用其线下 build 功能：线下修改 Dockerfile，build，然后 push到 docker hub，本文记录了这一过程。
 ![image](/images/posts/code-server/code-server-logo.png)
 
