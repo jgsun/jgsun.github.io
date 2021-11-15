@@ -13,29 +13,36 @@ author: jgsun
 
 因为想用 一块 ARM 板卡来做 kernel ramdump/crash-utility 的 demo，要在u-boot阶段来 dump 内存，而该板卡的 u-boot 版本是 2009，没有支持 ubifs 和 tftpput 等命令，所以产生了升级其 u-boot 到版本 2017.01 的动机。这篇 log 记录了升级过程。
 ![image](images/posts/boot/m853xx_block_diagram.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 最后使用 2017.01 版本的 u-boot 顺利完成了 kernel ramdump/crash-utility 的 demo，而且升级后的 u-boot 也被同事拿去正式使用！
-
-
-
-
-
-
-
-
-
-
 
 # 一、创建u-boot-2017.01 baseline
 1. 从 u-boot 开源网站下载 u-boot-2017.01
-ftp://ftp.denx.de/pub/u-boot/u-boot-2017.01.tar.bz2
+<ftp://ftp.denx.de/pub/u-boot/u-boot-2017.01.tar.bz2>
 
 2. 解压到目录/repo/jiangusu/lib/u-boot-2017.01，commit所有代码建立u-boot-2017.01的baseline
 
-    jiangusu@ASBLX60:/repo/jiangusu/lib/u-boot-2017.01$ hg init
-    jiangusu@ASBLX60:/repo/jiangusu/lib/u-boot-2017.01$ hg add*
-    jiangusu@ASBLX60:/repo/jiangusu/lib/u-boot-2017.01$ hg ci
+    u-boot-2017.01$ hg init
+    u-boot-2017.01$ hg add*
+    u-boot-2017.01$ hg ci
 
 3. 从 /repo/jiangusu/lib/u-boot-mindspeed-sdk 库拷贝如下源代码到 /repo/jiangusu/lib/u-boot-2017.01 库相应目录，并 commit，这样之后修改的代码能产生 diff 进行跟踪。
+
 |u-boot-mindspeed-sdk|u-boot-2017.01|
 |-----------------------------|----------------------|
 |cpu/m853xx/|arch/arm/mach-m853xx|
@@ -83,6 +90,7 @@ diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
 ```
 
 (2) 创建 arch/arm/mach-m853xx/Kconfig，配置 vendor name, soc, board name 和 board cinfiguration name
+
 |items|value|config symbol|comments|
 |------|------|------|------|
 |cpu|cpu_v7|CONFIG_SYS_CPU_V7|compile arch/arm/cpu/armv7|
@@ -515,6 +523,7 @@ So set it to 0xffffffff to avoid the issue.
 
 ## 9.进入 kernel 后 reboot 命令无效，u-boot reset 上电板子重启 2 次
 niata的 OBC 有两个 core，用的是 AMP(Asymmetric Multi-Processing) 架构，上电启动阶段，arm0 运行 u-boot，arm1 处于 reset 状态；之后 arm1 启动 kernle，arm0 运行 DSP 的 firmware。用一个表格可以表示启动顺序。增加这段代码之后板子没有 reset 问题了。
+
 |arm0(u-boot)|arm1(kernel)|
 |------|------|
 |disable interrupts set the cpu to SVC32 mode|	in reset|
@@ -540,7 +549,7 @@ niata的 OBC 有两个 core，用的是 AMP(Asymmetric Multi-Processing) 架构�
 ## 10.CONFIG_EXTRA_ENV_SETTINGS 添加变量不生效问题
 在 include/configs/niata_nor16.h 中 CONFIG_EXTRA_ENV_SETTINGS 添加 fdt_high 和修改 tftp 为 tftpboot 均不生效，在网上找到一篇文章解释了这个问题：
 
->>https://stackoverflow.com/questions/12282184/u-boot-text-area-overflow-when-adding-command-defines
+>><https://stackoverflow.com/questions/12282184/u-boot-text-area-overflow-when-adding-command-defines>
 u-boot always reads the saved environment variables first. These environment variables are typically in non-volatile memory (NOR or NAND flash, or others). If the CRC of the saved environment variables are correct the saved env variables are used. If you changed your CONFIG_EXTRA_ENV_SETTINGS it won't be used!
 The values in the CONFIG_EXTRA_ENV_SETTINGS will only be used when you reset the env vars to default and save them: env default -f and saveenv
 

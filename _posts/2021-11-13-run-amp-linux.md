@@ -12,6 +12,7 @@ author: jgsun
 
 # 1. Overview
 项目需要在一个 4 核的 SoC(System on a Chip) 处理器上面运行 Linux 和 VxWorks 两个操作系统： core-0/2/3 运行 Linux OS， core-1 运行 VxWorks OS； core-0/2/3 Linux OS 由中国团队开发，core-1 VxWorks OS 由国外团队开发。先启动 Linux OS， 由 Linux OS 启动 VxWorks OS。因为 VxWorks OS 开发进展较慢，我们决定现在 core-1 启动另外一个 Linux OS 来 derisk， 提前验证 Linux OS AMP 的启动方案， 验证 Linux Kernel remoteproc driver， RPMsg/Virtio driver 等。后来这套运行两个 Linux OS 的 AMP 方案还差点用到产品上面，这是后话。下图是系统框图：
+
 ![image](/images/posts/amp_linux/system_block.png)
 
 
