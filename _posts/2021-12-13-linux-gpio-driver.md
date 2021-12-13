@@ -146,50 +146,45 @@ LEDs driver for GPIOs
 # 内核态访问 GPIO
 ![image](/images/posts/gpio/gpio_kernel.png)
 
+
+
+
+# 用户态访问 GPIO
+![image](/images/posts/gpio/gpio_user.png)
+
 ## libgpiod 
 buildroot 选择 package libgpiod 和 gpio tools：
 ![image](/images/posts/gpio/br_libgpiod.png)
 
+libgpiod - C library and tools for interacting with the linux GPIO
+            character device (gpiod stands for GPIO device)
 
-```
- BR2_PACKAGE_LIBGPIOD:                                                                                                                                 │  
-  │                                                                                                                                                       │  
-  │ This is a C library that abstracts the GPIO character                                                                                                 │  
-  │ device operations on linux.                                                                                                                           │  
-  │                                                                                                                                                       │  
-  │ https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git/                                                                                            │  
-  │                                                                                                                                                       │  
-  │ Symbol: BR2_PACKAGE_LIBGPIOD [=y]                                                                                                                     │  
-  │ Type  : bool                                                                                                                                          │  
-  │ Prompt: libgpiod                                                                                                                                      │  
-  │   Location:                                                                                                                                           │  
-  │     -> Target packages                                                                                                                                │  
-  │       -> Libraries                                                                                                                                    │  
-  │         -> Hardware handling                                                                                                                          │  
-  │   Defined at package/libgpiod/Config.in:1                                                                                                             │  
-  │   Depends on: BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_8 [=y]                                                                                                 │  
-  │   Selected by [n]:                                                                                                                                    │  
-  │   - BR2_PACKAGE_ALTERA_STAPL [=n] && BR2_TOOLCHAIN_HEADERS_AT_LEAST_4_8 [=y]   
-```
+(https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git/)
+
+Since linux 4.8 the GPIO sysfs interface is deprecated. User space should use
+the character device instead. This library encapsulates the ioctl calls and
+data structures behind a straightforward API.
+
 ## gpio tools
-```
-BR2_PACKAGE_LIBGPIOD_TOOLS:                                                                                                                           │  
-  │                                                                                                                                                       │  
-  │ Include a set of command-line tools for managing GPIOs.                                                                                               │  
-  │                                                                                                                                                       │  
-  │ Symbol: BR2_PACKAGE_LIBGPIOD_TOOLS [=y]                                                                                                               │  
-  │ Type  : bool                                                                                                                                          │  
-  │ Prompt: install tools                                                                                                                                 │  
-  │   Location:                                                                                                                                           │  
-  │     -> Target packages                                                                                                                                │  
-  │       -> Libraries                                                                                                                                    │  
-  │         -> Hardware handling                                                                                                                          │  
-  │           -> libgpiod (BR2_PACKAGE_LIBGPIOD [=y])                                                                                                     │  
-  │   Defined at package/libgpiod/Config.in:12                                                                                                            │  
-  │   Depends on: BR2_PACKAGE_LIBGPIOD [=y]          
-```
-# 用户态访问 GPIO
-![image](/images/posts/gpio/gpio_user.png)
+
+There are currently six command-line tools available:
+
+* gpiodetect - list all gpiochips present on the system, their names, labels
+               and number of GPIO lines
+
+* gpioinfo   - list all lines of specified gpiochips, their names, consumers,
+               direction, active state and additional flags
+
+* gpioget    - read values of specified GPIO lines
+
+* gpioset    - set values of specified GPIO lines, potentially keep the lines
+               exported and wait until timeout, user input or signal
+
+* gpiofind   - find the gpiochip name and line offset given the line name
+
+* gpiomon    - wait for events on GPIO lines, specify which events to watch,
+               how many events to process before exiting or if the events
+               should be reported to the console
 
 # 参考文档
 * [Linux kernel GPIO user space interface](https://embeddedbits.org/new-linux-kernel-gpio-user-space-interface/)

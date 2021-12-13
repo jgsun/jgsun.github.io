@@ -37,9 +37,8 @@ Jekyll是一个静态站点生成工具，不需要数据库的支持，通过ma
 WSL是微软2016年推出的在windows10运行linx系统，全称是windowsWindows Subsystem for Linux；自从WSL横空出世，我就抛弃了CYGWIN，毕竟WSL是windows原生系统。现在很微软已经发布WSL2，性能更加牛逼，很是期待（因为所用电脑windows10版本还低于安装WSL2的版本）
 可到到微软网站WSL主页[Windows Subsystem for Linux Documentation](https://docs.microsoft.com/en-us/windows/wsl/about)了解WSL和安装。
 
-```
-The Windows Subsystem for Linux lets developers run a GNU/Linux environment -- including most command-line tools, utilities, and applications -- directly on Windows, unmodified, without the overhead of a virtual machine.
-```
+
+    The Windows Subsystem for Linux lets developers run a GNU/Linux environment -- including most command-line tools, utilities, and applications -- directly on Windows, unmodified, without the overhead of a virtual machine.
 
 # 2. 搭建步骤
 
@@ -47,38 +46,39 @@ The Windows Subsystem for Linux lets developers run a GNU/Linux environment -- i
 
 （1）切换WSL到root用户，安装gcc，g++
 
-```
-root@N-20L6PF1QDMGJ:/home/jgsun# apt install gcc 
-root@N-20L6PF1QDMGJ:/home/jgsun# apt install g++
-```
+
+    root@N-20L6PF1QDMGJ:/home/jgsun# apt install gcc 
+    root@N-20L6PF1QDMGJ:/home/jgsun# apt install g++
+
 
 （2）安装ruby-devel
-`gsun@N-20L6PF1QDMGJ:~$ sudo apt-get install ruby-dev`
+
+    jgsun@N-20L6PF1QDMGJ:~$ sudo apt-get install ruby-dev
 
 查看ruby和gem的版本提示安装成功：
 
-```
-jgsun@N-20L6PF1QDMGJ:~$ ruby -v
-ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-linux-gnu]
-jgsun@N-20L6PF1QDMGJ:~$ gem -v
-2.7.6
-```
+    jgsun@N-20L6PF1QDMGJ:~$ ruby -v
+    ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-linux-gnu]
+    jgsun@N-20L6PF1QDMGJ:~$ gem -v
+    2.7.6
 
-（3）安装 jekyll和
-`root@N-20L6PF1QDMGJ:/home/jgsun# gem install jekyll`
+（3）安装 jekyll
+
+    root@N-20L6PF1QDMGJ:/home/jgsun# sudo apt-get install jekyll
+
 安装完成后查看kelyll版本：
 
-```
-root@N-20L6PF1QDMGJ:/home/jgsun# jekyll -v
-jekyll 4.0.0
-```
+
+    root@N-20L6PF1QDMGJ:/home/jgsun# jekyll -v
+    jekyll 4.0.0
+
 
 （4）安装 bigdecimal和 paginate
 
-```
-gem install bigdecimal
-gem install jekyll-paginate
-```
+
+    gem install bigdecimal
+    gem install jekyll-paginate
+
 
 ## 2.2 启动 jekyll server
 
