@@ -9,7 +9,6 @@ author: jgsun
 * content
 {:toc}
 
-[TOC]
 # Overview
 下图来自文章 [Linux kernel GPIO user space interface](https://embeddedbits.org/new-linux-kernel-gpio-user-space-interface/) ，可概括这篇文章的内容。本文介绍 Linux GPIO driver的初始化，用户态访问 GPIO 和内核态访问 GPIO。
 

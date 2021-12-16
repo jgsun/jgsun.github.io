@@ -9,7 +9,6 @@ author: jgsun
 * content
 {:toc}
 
-[TOC]
 # Overview
 OpenGrok 是一个很牛的代码阅读浏览工具，用过的都说牛，其官网 <https://oracle.github.io/opengrok> 有详细介绍，不再叙述。
 本文介绍在树莓派4(安装 ubuntu 20.04 server 系统) 搭建 opengrok standalone 环境的步骤。
