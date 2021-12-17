@@ -73,7 +73,7 @@ author: jgsun
 
 # 第三步 docker build image
     
-    $ wget https://raw.githubusercontent.com/jgsun/code-server/master/Dockerfile
+    $ git clone https://github.com/jgsun/code-server
     $ docker build -t jgsun/code-server:latest  .
     Sending build context to Docker daemon  56.18MB
     Step 1/11 : FROM codercom/code-server:latest
