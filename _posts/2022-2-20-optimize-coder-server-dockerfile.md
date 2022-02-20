@@ -15,7 +15,7 @@ author: jgsun
 
 现在服务器不支持启动 Docker，在订购的个人 workstation 到货，安装好统一的 Ubuntu 系统之后，俺就马上安装 Docker， 启动了 code-server，没错，还是熟悉的味道~
 
-保存在 [docker.io/jgsun/coder-server](https://hub.docker.com/repository/docker/jgsun/code-server) 的 image 还可以使用，但是有一段时间没有更新了，而且还想安装几个有用的 extension， 比如 `GitLens — Git supercharged` 等，所以就开动 docker build “机器”，构建新的 docker image。在这过程中，遇到和解决了一些新的问题，借此机会优化了 Dockerfile.
+保存在 [docker.io/jgsun/coder-server](https://hub.docker.com/repository/docker/jgsun/code-server) 的 image 还可以使用，但是有一段时间没有更新了，而且还想安装几个有用的 extension， 比如 `GitLens — Git supercharged` 等，所以就开动 docker build “机器”，构建新的 docker image。在这过程中，遇到和解决了一些新的问题，借此机会优化了 Dockerfile. [点我查看新版Dockerfile](https://github.com/jgsun/code-server/blob/master/Dockerfile)
 
 ![image](/images/posts/code-server/wow.png)
 
