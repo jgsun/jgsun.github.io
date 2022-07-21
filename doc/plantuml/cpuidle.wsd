@@ -1,0 +1,13 @@
+@startuml
+title Sequence Diagram of User login
+actor User as user
+
+participant "init/main.c" as main
+participant "kernel/sched/core.c" as core
+
+activate main
+main-> core:sched_init
+activate core
+core-> core:init_idle
+
+@enduml
