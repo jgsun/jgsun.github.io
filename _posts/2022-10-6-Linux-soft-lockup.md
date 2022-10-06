@@ -49,5 +49,10 @@ stop a cpu but don't wait for completion:
 325  }
 ```
 ## 案例分析： 长时间 disable local cpu interrupt 引起的 soft lockup
-这个问题来自某 hypervisor 的 bug，在 SMC call 期间，其虚拟的 TZ，长时间没有返回 Linux 处理 pending 的中断，其中也包括 watchdog timer 中断，watchdog job 长时间得到调度喂狗，导致了 soft lockup。
+这个问题来自某 hypervisor 的 bug，在 SMC call 期间，其虚拟的 TZ，长时间没有返回 Linux 处理 pending 的中断，其中也包括 watchdog timer 中断，watchdog job 长时间得到调度喂狗，导致了 soft lockup。这有点类似 ‘hardlockup’.
+- **hard lockup**
+  
+  A ‘hardlockup’ is defined as a bug that causes the CPU to loop in kernel mode for more than 10 seconds (see “Implementation” below for details), without letting other interrupts have a chance to run.
+
+这里 interrupt 都 disable 了超过 20s，如果使能了 hard lockup，就应该报 “NMI watchdog: Watchdog detected hard LOCKUP on cpu 0” 了。
 ![image](/images/posts/oom/soft_lockup_smc.png)
