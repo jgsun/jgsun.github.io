@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "SCSI UFS init view"
-category: process_irq
+category: storage
 tags: tmux tabby .tmux.conf
 author: jgsun
 ---
