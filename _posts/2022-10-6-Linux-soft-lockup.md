@@ -15,6 +15,15 @@ The Linux kernel can act as a watchdog to detect both soft and hard lockups.
 * [Softlockup detector and hardlockup detector (aka nmi_watchdog) — The Linux Kernel documentation](https://www.kernel.org/doc/html/latest/admin-guide/lockup-watchdogs.html)
 
 
+
+
+
+
+
+
+
+
+
 ## init view
 ![image](/images/posts/oom/soft_lockup_init.png)
 
@@ -55,4 +64,5 @@ stop a cpu but don't wait for completion:
   A ‘hardlockup’ is defined as a bug that causes the CPU to loop in kernel mode for more than 10 seconds (see “Implementation” below for details), without letting other interrupts have a chance to run.
 
 这里 interrupt 都 disable 了超过 20s，如果使能了 hard lockup，就应该报 “NMI watchdog: Watchdog detected hard LOCKUP on cpu 0” 了。
+
 ![image](/images/posts/oom/soft_lockup_smc.png)
