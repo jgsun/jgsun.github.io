@@ -9,7 +9,7 @@ author: jgsun
 * content
 {:toc}
 
-# Overview
+## Overview
 The Linux on top of hypervisor has hrtimer overrun issue, 1.33ms hrtimer may has delay for more than 10ms.
 The hypervisor supplier hope us check if there are overruns in native Linux.
 
@@ -34,7 +34,6 @@ Traces the areas that disable interrupts and saves the trace with the longest ma
 Some of the tracers record the max latency. For example, the maximum time that interrupts are disabled. The maximum time is saved in this file. The max trace will also be stored, and displayed by “trace”. A new max trace will only be recorded if the latency is greater than the value in this file (in microseconds).
 By echoing in a time into this file, no latency will be recorded unless it is greater than the time in this file.
 
-# Test and analysis
 ## Measure irqsoff latency
 ### Preparation: enable irqsoff tracer
 The kernel config will be added:
@@ -146,7 +145,7 @@ Analysis: In function console_unlock, the local cpu irq is disable for about 10m
 ```
 如果降低打印等级 “dmesg -n 1”，则 hrtimer test module 没有 overruns 情况。 
 
-# Conclusion
+## Conclusion
 On native Linux, the irqsoff latency is come from printk, we need to be careful to remove any console log from the system to ensure no overruns from the hrtimer.
 
 The reason why qseecom_simple_test introduce the overruns is because the qseecom driver take pe_warn in three places, now I have a patch to lower their loglevel, which remove the overruns also.
@@ -154,5 +153,5 @@ The reason why qseecom_simple_test introduce the overruns is because the qseecom
 This should be not the case for hypervisor based Linux, where printing happens into buffer and not to the hardware directly.
 
 
-# Reference
+## Reference
 [ftrace - irqsoff Tracer — The Linux Kernel documentation](https://docs.kernel.org/trace/ftrace.html#irqsoff)

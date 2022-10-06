@@ -9,7 +9,7 @@ author: jgsun
 * content
 {:toc}
 
-# Overview
+## Overview
 本文简要介绍了 Linux SCSI UFS(Universal Flash Storage) 的初始化。契机是解一个 kernel boot 阶段 mount rootfs 失败的的问题： "VFS: Unable to mount root fs on unknown-block(8,6)"。所以，本文最后也介绍了这个问题的原因和解法。
 
 
@@ -20,11 +20,11 @@ author: jgsun
 
 
 
-# SCSI UFS init view
+## SCSI UFS init view
 ![image](/images/posts/scsi/scsi_ufs_init.png)
 
 
-# Rootfs mount issue
+## Rootfs mount issue
 在某一个项目中，我们使用 UFS LUN0 的 partition 6 作为 rootfs 的分区，启动参数是 "root=/dev/sda6"。但是在 Kernel 启动过程中，有较大概率发现此分区的分配盘符是 "/dev/sdb6", 从而导致系统 panic： "VFS: Unable to mount root fs on unknown-block(8,6)"。
 
 SCSI UFS 初始化过程中，循环给每个 LUN 注册 scsi_device, 然后匹配 scsi_driver 从而调用 sd_probe 分配 index(sda, sdb, ...) 添加 block device。每个 LUN 是顺序添加，但是 sd_probe 是异步执行，这样就导致在 sd_probe 中分配的 index 可能失序，LUN0 所获分配的 index 是 sdb，其 partition 6 盘符就是sdb6， 导致 kernel 因为找不到 sda6 而挂载 rootfs 失败。
@@ -93,7 +93,7 @@ dev_t name_to_dev_t(const char *name)
 	char s[32];
 ```
 
-# References
+## References
 [SCSI Interfaces Guide — The Linux Kernel documentation](https://www.kernel.org/doc/html/latest/driver-api/scsi.html)
 [Universal Flash Storage — The Linux Kernel documentation](https://www.kernel.org/doc/html/latest/scsi/ufs.html?highlight=ufs)
 [https://elinux.org/images/6/64/Introduction_to_UFS.pdf](https://elinux.org/images/6/64/Introduction_to_UFS.pdf)
