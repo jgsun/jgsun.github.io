@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Measur irq_disable latency"
+title: "Measure irq_disable latency"
 category: process_irq
 tags: tmux tabby .tmux.conf
 author: jgsun
