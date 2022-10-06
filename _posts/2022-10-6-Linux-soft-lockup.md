@@ -11,7 +11,10 @@ author: jgsun
 
 ## Overview
 The Linux kernel can act as a watchdog to detect both soft and hard lockups.
-请首先阅读内核文档来了解学习 Linux soft lockup，上面这句话就来自这篇文档，该文档是 soft lockup 的第一手资料。记得著名程序员左耳朵耗子有个访谈，说到学习要找到第一手资料的重要性！我这篇文章纯属记录下学习的过程，供以后查询。
+
+建议首先阅读内核文档来了解学习 Linux soft lockup，上面这句话就来自这篇文档，该文档是 soft lockup 的第一手资料。记得著名程序员左耳朵耗子有个访谈，说到学习看第一手资料的重要性！
+
+我这篇文章纯属记录下学习的过程，供以后查询。
 * [Softlockup detector and hardlockup detector (aka nmi_watchdog) — The Linux Kernel documentation](https://www.kernel.org/doc/html/latest/admin-guide/lockup-watchdogs.html)
 
 
