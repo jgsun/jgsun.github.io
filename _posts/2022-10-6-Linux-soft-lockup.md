@@ -2,7 +2,7 @@
 layout: post
 title: "Linux soft lockup"
 category: debug
-tags: panic smp_send_stop
+tags: panic soft_lockup
 author: jgsun
 ---
 
