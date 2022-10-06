@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "win10/virtualbox/ubuntu虚拟机套娃"
-categories: virtualize
+categories: system
 tags: VT-x, vtx, virt-nest, virtualbox, ubuntu, KVM
 author: jgsun
 ---

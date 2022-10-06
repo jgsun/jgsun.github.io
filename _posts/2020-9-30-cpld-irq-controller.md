@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "cpld irq controller Linux驱动设计"
-categories: process
+title:  "cpld irq controller Linux 驱动设计"
+categories: system_io
 tags: CPLD, irq controller, generic irqchip
 author: jgsun
 ---

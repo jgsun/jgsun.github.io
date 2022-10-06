@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "升级ubuntu20.04"
+title:  "升级 ubuntu20.04"
 categories: build
 tags: ubuntu, wsl2, virtualbox
 author: jgsun

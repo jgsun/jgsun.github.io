@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "cpld Linux Kernel driver 系列"
-categories: kernel driver
+categories: system_io
 tags: CPLD irq-controller generic-irqchip irq-domain
 author: jgsun
 ---

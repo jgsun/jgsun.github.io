@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "cygwin+jekyll搭建github静态blog"
+title:  "cygwin + jekyll 搭建 github 静态 blog(此文过时)"
 categories: build
 tags: cygwin, windows10, jekyll,  github page， ruby-devel
 author: jgsun

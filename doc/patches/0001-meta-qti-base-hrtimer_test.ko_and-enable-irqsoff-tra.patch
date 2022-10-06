@@ -1,0 +1,218 @@
+From 903a9c4d7652658f9b4db54e5959a636e5b6858f Mon Sep 17 00:00:00 2001
+From: Jianguo Sun <jianguo_sun@hotmail.com>
+Date: Fri, 23 Sep 2022 10:25:55 +0800
+Subject: [PATCH] meta-qti-base: hrtimer_test.ko_and enable irqsoff tracer
+
+1. High resolution timer test module.
+2. enable irqsoff tracer.
+
+Change-Id: I0a03baef2b979709fea3ae09e46cd7dd727b4858
+---
+ .../kernel-module-hrtimer/files/Kbuild        |  6 +++
+ .../kernel-module-hrtimer/files/Makefile      | 12 +++++
+ .../kernel-module-hrtimer/files/hrtimer.conf  |  1 +
+ .../files/hrtimer_test.c                      | 54 +++++++++++++++++++
+ .../kernel-module-hrtimer_%.bbappend          |  6 +++
+ .../kernel-module-hrtimer_1.0.bb              | 30 +++++++++++
+ .../recipes-kernel/linux-msm/files/lxc.cfg    | 37 +++++++++++++
+ 7 files changed, 146 insertions(+)
+ create mode 100644 meta-qti-base/recipes-kernel/kernel-module-hrtimer/files/Kbuild
+ create mode 100644 meta-qti-base/recipes-kernel/kernel-module-hrtimer/files/Makefile
+ create mode 100644 meta-qti-base/recipes-kernel/kernel-module-hrtimer/files/hrtimer.conf
+ create mode 100644 meta-qti-base/recipes-kernel/kernel-module-hrtimer/files/hrtimer_test.c
+ create mode 100644 meta-qti-base/recipes-kernel/kernel-module-hrtimer/kernel-module-hrtimer_%.bbappend
+ create mode 100644 meta-qti-base/recipes-kernel/kernel-module-hrtimer/kernel-module-hrtimer_1.0.bb
+
+diff --git a/meta-qti-base/recipes-kernel/kernel-module-hrtimer/files/Kbuild b/meta-qti-base/recipes-kernel/kernel-module-hrtimer/files/Kbuild
+new file mode 100644
+index 00000000..2503ce9d
+--- /dev/null
++++ b/meta-qti-base/recipes-kernel/kernel-module-hrtimer/files/Kbuild
+@@ -0,0 +1,6 @@
++#
++# Kbuild for hrtimer test module
++#
++
++obj-m += hrtimer_test.o
++
+diff --git a/meta-qti-base/recipes-kernel/kernel-module-hrtimer/files/Makefile b/meta-qti-base/recipes-kernel/kernel-module-hrtimer/files/Makefile
+new file mode 100644
+index 00000000..df8e2f26
+--- /dev/null
++++ b/meta-qti-base/recipes-kernel/kernel-module-hrtimer/files/Makefile
+@@ -0,0 +1,12 @@
++SRC := $(shell pwd)
++
++all:
++	$(MAKE) -C $(KERNEL_SRC) M=$(SRC)
++
++modules_install:
++	$(MAKE) -C $(KERNEL_SRC) M=$(SRC) modules_install
++
++clean:
++	rm -f *.o *~ core .depend .*.cmd *.ko *.mod.c
++	rm -f Module.markers Module.symvers modules.order
++	rm -rf .tmp_versions Modules.symvers
+diff --git a/meta-qti-base/recipes-kernel/kernel-module-hrtimer/files/hrtimer.conf b/meta-qti-base/recipes-kernel/kernel-module-hrtimer/files/hrtimer.conf
+new file mode 100644
+index 00000000..07ff7901
+--- /dev/null
++++ b/meta-qti-base/recipes-kernel/kernel-module-hrtimer/files/hrtimer.conf
+@@ -0,0 +1 @@
++hrtimer
+diff --git a/meta-qti-base/recipes-kernel/kernel-module-hrtimer/files/hrtimer_test.c b/meta-qti-base/recipes-kernel/kernel-module-hrtimer/files/hrtimer_test.c
+new file mode 100644
+index 00000000..6172389a
+--- /dev/null
++++ b/meta-qti-base/recipes-kernel/kernel-module-hrtimer/files/hrtimer_test.c
+@@ -0,0 +1,54 @@
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/hrtimer.h>
++
++static unsigned period = 1333333;
++module_param(period, uint, S_IRUGO);
++MODULE_PARM_DESC(period, "timer interval to test (in ns)");
++
++static bool hard = true;
++module_param(hard, bool, S_IRUGO);
++MODULE_PARM_DESC(hard, "whether to set hrtimer HARD mode");
++
++static struct hrtimer timer = {};
++
++static unsigned cycles = 0;
++
++static enum hrtimer_restart hrtimer_cb(struct hrtimer *hrtimer)
++{
++	unsigned overruns;
++	ktime_t now = hrtimer->base->get_time();
++	ktime_t expect_expires = hrtimer_get_expires(hrtimer);
++	ktime_t delta = ktime_sub(now, expect_expires);
++
++	overruns = hrtimer_forward_now(hrtimer, period);
++	trace_printk("hrtimer stat: now: %llu [us] expect_expires: %llu [us], delta: %llu, next_expires: %llu\n",
++			now / 1000, expect_expires / 1000, delta / 1000, hrtimer_get_expires(hrtimer) / 1000);
++	if (overruns > 1)
++		trace_printk("%u overruns\n", overruns);
++	cycles += overruns;
++
++	return HRTIMER_RESTART;
++}
++
++static int __init timer_test_init(void)
++{
++	// hrtimer_init(&timer, CLOCK_MONOTONIC, hard ? HRTIMER_MODE_REL_PINNED_HARD: HRTIMER_MODE_REL_PINNED);
++	hrtimer_init(&timer, CLOCK_MONOTONIC, hard ? HRTIMER_MODE_ABS_HARD: HRTIMER_MODE_ABS_SOFT);
++	timer.function = &hrtimer_cb;
++	pr_warn("timer_test: starting hrtimer test\n");
++	hrtimer_start(&timer, period, HRTIMER_MODE_REL);
++	return 0;
++}
++
++static void __exit timer_test_exit(void)
++{
++	hrtimer_cancel(&timer);
++	pr_warn("timer_test: tested %u cycles\n", cycles);
++}
++module_init(timer_test_init);
++module_exit(timer_test_exit);
++
++MODULE_AUTHOR("Jianguo Sun");
++MODULE_DESCRIPTION("hrtimer test module");
++MODULE_LICENSE("GPL");
+diff --git a/meta-qti-base/recipes-kernel/kernel-module-hrtimer/kernel-module-hrtimer_%.bbappend b/meta-qti-base/recipes-kernel/kernel-module-hrtimer/kernel-module-hrtimer_%.bbappend
+new file mode 100644
+index 00000000..b9964735
+--- /dev/null
++++ b/meta-qti-base/recipes-kernel/kernel-module-hrtimer/kernel-module-hrtimer_%.bbappend
+@@ -0,0 +1,6 @@
++inherit qticlang
++
++TOOLCHAIN = "clang"
++DEPENDS += "clang-native"
++
++KERNEL_CC = "${CC} -fuse-ld=bfd"
+diff --git a/meta-qti-base/recipes-kernel/kernel-module-hrtimer/kernel-module-hrtimer_1.0.bb b/meta-qti-base/recipes-kernel/kernel-module-hrtimer/kernel-module-hrtimer_1.0.bb
+new file mode 100644
+index 00000000..dc954b9c
+--- /dev/null
++++ b/meta-qti-base/recipes-kernel/kernel-module-hrtimer/kernel-module-hrtimer_1.0.bb
+@@ -0,0 +1,30 @@
++SUMMARY = "High resolution timer test driver"
++DESCRIPTION = "Test driver"
++
++LICENSE = "CLOSED"
++
++inherit module
++
++SRC_URI = " \
++	file://hrtimer.conf \
++	file://Kbuild;subdir=git \
++	file://Makefile;subdir=git \
++	file://hrtimer_test.c;subdir=git \
++"
++# Avoid adding prefix, that will let us to include coqoshv.rules in the same package
++KERNEL_MODULE_PACKAGE_SUFFIX = ""
++
++S = "${WORKDIR}/git"
++
++do_install_append() {
++    # Create destination directories
++    # install -d ${D}/lib/modules/${KERNEL_VERSION}/extra/
++
++    # Copy kernel module
++    # install -m 644 ${S}/hrtimer_test.ko ${D}/lib/modules/${KERNEL_VERSION}/extra/
++
++    # copy modules-load
++#    install -d ${D}/etc/modules-load.d/
++#    install -m 644 ${WORKDIR}/hrtimer.conf ${D}/etc/modules-load.d/
++}
++
+diff --git a/meta-qti-base/recipes-kernel/linux-msm/files/lxc.cfg b/meta-qti-base/recipes-kernel/linux-msm/files/lxc.cfg
+index 194ee1c2..e556c647 100644
+--- a/meta-qti-base/recipes-kernel/linux-msm/files/lxc.cfg
++++ b/meta-qti-base/recipes-kernel/linux-msm/files/lxc.cfg
+@@ -32,3 +32,40 @@ CONFIG_RD_GZIP=y
+ CONFIG_VETH=y
+ CONFIG_BRIDGE=y
+ CONFIG_MACVLAN=y
++CONFIG_DEVKMEM=y
++
++CONFIG_CC_VERSION_TEXT="aarch64-oe-linux-gcc (GCC) 9.3.0"
++CONFIG_CC_IS_GCC=y
++CONFIG_GCC_VERSION=90300
++CONFIG_CLANG_VERSION=0
++CONFIG_CC_HAS_ASM_INLINE=y
++CONFIG_RELAY=y
++CONFIG_CC_HAVE_STACKPROTECTOR_SYSREG=y
++CONFIG_STACKPROTECTOR_PER_TASK=y
++CONFIG_LTO_NONE=y
++CONFIG_HAVE_ARCH_PREL32_RELOCATIONS=y
++CONFIG_PLUGIN_HOSTCC=""
++# CONFIG_FORTIFY_SOURCE is not set
++CONFIG_INIT_STACK_NONE=y
++CONFIG_KASAN_STACK=1
++CONFIG_HAVE_FUNCTION_GRAPH_TRACER=y
++CONFIG_TRACER_MAX_TRACE=y
++CONFIG_RING_BUFFER_ALLOW_SWAP=y
++CONFIG_FUNCTION_GRAPH_TRACER=y
++CONFIG_TRACE_PREEMPT_TOGGLE=y
++CONFIG_PREEMPTIRQ_EVENTS=y
++CONFIG_IRQSOFF_TRACER=y
++CONFIG_PREEMPT_TRACER=y
++CONFIG_SCHED_TRACER=y
++CONFIG_HWLAT_TRACER=y
++CONFIG_TRACER_SNAPSHOT=y
++CONFIG_TRACER_SNAPSHOT_PER_CPU_SWAP=y
++CONFIG_STACK_TRACER=y
++CONFIG_BLK_DEV_IO_TRACE=y
++CONFIG_KPROBE_EVENTS_ON_NOTRACE=y
++CONFIG_KPROBES_DEBUG=y
++CONFIG_TRACING_MAP=y
++CONFIG_HIST_TRIGGERS=y
++# CONFIG_PM_SLEEP_SMP is not set
++# CONFIG_HOTPLUG_CPU is not set
++# CONFIG_SCHED_WALT is not set
+-- 
+2.17.1
+

@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "lspci -xxx内核实现"
-categories: system
+categories: system_io
 tags: PCIe, lspci, pciutils, config space
 author: jgsun
 ---

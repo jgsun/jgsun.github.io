@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "QEMU模拟arm64 virt u-boot/linux"
-categories: virtualize
+categories: system
 tags: QEMU virt u-boot linux
 author: jgsun
 ---

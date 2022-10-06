@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "OpenAMP： remoteproc，RPMsg/Virtio driver 系列"
-categories: kernel driver
+categories: system
 tags: OpenAMP remoteproc RPMsg/Virtio
 author: jgsun
 ---
