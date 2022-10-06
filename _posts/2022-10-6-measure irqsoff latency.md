@@ -2,7 +2,7 @@
 layout: post
 title: "Measure irq_disable latency"
 category: process_irq
-tags: tmux tabby .tmux.conf
+tags: hypervisor irqsoff printk
 author: jgsun
 ---
 

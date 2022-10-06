@@ -2,7 +2,7 @@
 layout: post
 title: "SCSI UFS init view"
 category: storage
-tags: tmux tabby .tmux.conf
+tags: SCSI UFS sd_probe
 author: jgsun
 ---
 
