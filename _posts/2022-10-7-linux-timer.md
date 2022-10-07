@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Linux timer"
+title: "Linux arch_timer"
 category: process
 tags: timer timer_init hrtimer sched_clock local_clock
 author: jgsun
@@ -10,7 +10,7 @@ author: jgsun
 {:toc}
 
 ## Overview
-Linux timer 是内核最重要的基础设施之一，内核术语中，timer 前缀是 arch：arch_timer，可见其地位之高！内核之 timer 提供系统运行的节拍，且是其他定时任务的基础，相当于人之心脏！
+Linux arch_timer 是内核最重要的基础设施之一，内核术语中，timer 带有前缀arch，可见其地位之高！内核之 arch_timer 提供系统运行的节拍，是其他定时任务的基础，相当于人之心脏！
 
 
 
