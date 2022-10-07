@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Upgrade u-boot from 2009 to 2017.01 on ARM"
-category: system
+category: boot
 tags: u-boot ARM
 author: jgsun
 ---

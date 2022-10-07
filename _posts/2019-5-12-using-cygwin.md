@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "使用 cygwin(此文过时)"
+title: "使用 cygwin<此文过时>"
 categories: build
 tags: cygwin, openssh, apt-cyg, 
 author: jgsun

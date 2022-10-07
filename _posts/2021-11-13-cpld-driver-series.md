@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "cpld Linux Kernel driver 系列"
-categories: system_io
+title:  "CPLD Linux Kernel driver"
+categories: I/O
 tags: CPLD irq-controller generic-irqchip irq-domain
 author: jgsun
 ---
@@ -31,6 +31,7 @@ CPLD linux 内核驱动需要自行设计，提供访问 cpld 寄存器和处理
 ![image](/images/posts/cpld/cpld-spi-dev.png)
 
 # 3. cpld irq controller driver
+cpld中断控制器驱动基于内核generic irqchip实现。
 ![image](/images/posts/cpld/cpld-irq-controller.png)
 
 # 4. uio irq driver

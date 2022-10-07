@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Measure irq_disable latency"
-category: process_irq
+category: irq
 tags: hypervisor irqsoff printk
 author: jgsun
 ---

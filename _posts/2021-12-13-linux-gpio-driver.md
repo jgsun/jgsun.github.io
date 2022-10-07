@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Linux GPIO driver"
-category: system_io
+category: I/O
 tags: GPIO gpiolib libgpiod gpio-toos
 author: jgsun
 ---

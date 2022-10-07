@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "一种为docker vscode/code-server安装插件的简易方法"
+title:  "一种为docker vscode/code-server安装插件的简易方法<此文过时>"
 categories: build
 tags: vscode, code-server, docker, settings.json, extensions
 author: jgsun
