@@ -1,0 +1,180 @@
+From c2477945d16c197ef20301125d6f1a30fbd9df74 Mon Sep 17 00:00:00 2001
+From: Jianguo Sun <jianguos@hotmail.com>
+Date: Fri, 23 Sep 2022 10:25:55 +0800
+Subject: [PATCH] hrtimer_test.ko
+
+hrtimer test module.
+
+Change-Id: I0a03baef2b979709fea3ae09e46cd7dd727b4858
+---
+ .../kernel-module-hrtimer/files/Kbuild        | 11 ++++
+ .../kernel-module-hrtimer/files/Makefile      | 12 ++++
+ .../kernel-module-hrtimer/files/hrtimer.conf  |  1 +
+ .../files/hrtimer_test.c                      | 62 +++++++++++++++++++
+ .../kernel-module-hrtimer_%.bbappend          |  6 ++
+ .../kernel-module-hrtimer_1.0.bb              | 30 +++++++++
+ .../recipes-kernel/linux-msm/files/lxc.cfg    | 37 +++++++++++
+ 7 files changed, 159 insertions(+)
+ create mode 100644 recipes-kernel/kernel-module-hrtimer/files/Kbuild
+ create mode 100644 recipes-kernel/kernel-module-hrtimer/files/Makefile
+ create mode 100644 recipes-kernel/kernel-module-hrtimer/files/hrtimer.conf
+ create mode 100644 recipes-kernel/kernel-module-hrtimer/files/hrtimer_test.c
+ create mode 100644 recipes-kernel/kernel-module-hrtimer/kernel-module-hrtimer_%.bbappend
+ create mode 100644 recipes-kernel/kernel-module-hrtimer/kernel-module-hrtimer_1.0.bb
+
+diff --git a/recipes-kernel/kernel-module-hrtimer/files/Kbuild b/recipes-kernel/kernel-module-hrtimer/files/Kbuild
+new file mode 100644
+index 00000000..4fb3a46d
+--- /dev/null
++++ b/recipes-kernel/kernel-module-hrtimer/files/Kbuild
+@@ -0,0 +1,11 @@
++
++ccflags-y := -I$(src)/include/
++
++#hrtimer_test-y := \
++#	hrtimer_test.o
++
++obj-m += hrtimer_test.o
++
+diff --git a/recipes-kernel/kernel-module-hrtimer/files/Makefile b/recipes-kernel/kernel-module-hrtimer/files/Makefile
+new file mode 100644
+index 00000000..5b8bb1b9
+--- /dev/null
++++ b/recipes-kernel/kernel-module-hrtimer/files/Makefile
+@@ -0,0 +1,12 @@
++SRC := $(shell pwd)
++
++all:
++	$(MAKE) -C $(KERNEL_SRC) M=$(SRC)
++
++modules_install:
++	$(MAKE) -C $(KERNEL_SRC) M=$(SRC) modules_install
++
++clean:
++	rm -f *.o *~ core .depend .*.cmd *.ko *.mod.c
++	rm -f Module.markers Module.symvers modules.order
++	rm -rf .tmp_versions Modules.symvers
+\ No newline at end of file
+diff --git a/recipes-kernel/kernel-module-hrtimer/files/hrtimer.conf b/recipes-kernel/kernel-module-hrtimer/files/hrtimer.conf
+new file mode 100644
+index 00000000..07ff7901
+--- /dev/null
++++ b/recipes-kernel/kernel-module-hrtimer/files/hrtimer.conf
+@@ -0,0 +1 @@
++hrtimer
+diff --git a/recipes-kernel/kernel-module-hrtimer/files/hrtimer_test.c b/recipes-kernel/kernel-module-hrtimer/files/hrtimer_test.c
+new file mode 100644
+index 00000000..e14a854f
+--- /dev/null
++++ b/recipes-kernel/kernel-module-hrtimer/files/hrtimer_test.c
+@@ -0,0 +1,62 @@
+
++
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/hrtimer.h>
++
++static unsigned period = 1333333;
++module_param(period, uint, S_IRUGO);
++MODULE_PARM_DESC(period, "timer interval to test (in ns)");
++
++static bool hard = true;
++module_param(hard, bool, S_IRUGO);
++MODULE_PARM_DESC(hard, "whether to set hrtimer HARD mode");
++
++static struct hrtimer timer = {};
++
++static unsigned cycles = 0;
++
++/* Keep previous value of current time */
++static ktime_t prev_now;
++
++static enum hrtimer_restart hrtimer_cb(struct hrtimer *hrtimer)
++{
++	unsigned overruns;
++ 	ktime_t now = hrtimer->base->get_time();
++	ktime_t expect_expires = hrtimer_get_expires(hrtimer);
++	ktime_t delta = ktime_sub(now, expect_expires);
++
++	overruns = hrtimer_forward_now(hrtimer, period);
++	trace_printk("hrtimer stat: now: %llu [us] expect_expires: %llu [us], delta: %llu, next_expires: %llu\n",
++			now / 1000, expect_expires / 1000, delta / 1000, hrtimer_get_expires(hrtimer) / 1000);
++	if (overruns > 1)
++		trace_printk("%u overruns\n", overruns);
++	cycles += overruns;
++
++	return HRTIMER_RESTART;
++}
++
++static int __init timer_test_init(void)
++{
++	// hrtimer_init(&timer, CLOCK_MONOTONIC, hard?HRTIMER_MODE_REL_PINNED_HARD:HRTIMER_MODE_REL_PINNED);
++	hrtimer_init(&timer, CLOCK_MONOTONIC, hard?HRTIMER_MODE_ABS_HARD:HRTIMER_MODE_ABS_SOFT);
++	timer.function = &hrtimer_cb;
++	pr_warn("timer_test: starting hrtimer test\n");
++	hrtimer_start(&timer, period, HRTIMER_MODE_REL);
++	prev_now = timer.base->get_time();
++	return 0;
++}
++
++static void __exit timer_test_exit(void)
++{
++	hrtimer_cancel(&timer);
++	pr_warn("timer_test: tested %u cycles\n", cycles);
++}
++module_init(timer_test_init);
++module_exit(timer_test_exit);
++
++MODULE_AUTHOR("Matthias Blankertz");
++MODULE_DESCRIPTION("hrtimer test module");
++MODULE_LICENSE("GPL");
+diff --git a/recipes-kernel/kernel-module-hrtimer/kernel-module-hrtimer_%.bbappend b/recipes-kernel/kernel-module-hrtimer/kernel-module-hrtimer_%.bbappend
+new file mode 100644
+index 00000000..b9964735
+--- /dev/null
++++ b/recipes-kernel/kernel-module-hrtimer/kernel-module-hrtimer_%.bbappend
+@@ -0,0 +1,6 @@
++inherit clang
++
++TOOLCHAIN = "clang"
++DEPENDS += "clang-native"
++
++KERNEL_CC = "${CC} -fuse-ld=bfd"
+diff --git a/recipes-kernel/kernel-module-hrtimer/kernel-module-hrtimer_1.0.bb b/recipes-kernel/kernel-module-hrtimer/kernel-module-hrtimer_1.0.bb
+new file mode 100644
+index 00000000..eafb900c
+--- /dev/null
++++ b/recipes-kernel/kernel-module-hrtimer/kernel-module-hrtimer_1.0.bb
+@@ -0,0 +1,30 @@
++SUMMARY = "High resolution timer test driver"
++DESCRIPTION = "Test driver"
++
++LICENSE = "CLOSED"
++
++inherit module
++
++SRC_URI = " \
++	file://hrtimer.conf \
++	file://Kbuild;subdir=git \
++	file://Makefile;subdir=git \
++	file://hrtimer_test.c;subdir=git \
++"
++KERNEL_MODULE_PACKAGE_SUFFIX = ""
++
++S = "${WORKDIR}/git"
++
++do_install_append() {
++    # Create destination directories
++    # install -d ${D}/lib/modules/${KERNEL_VERSION}/extra/
++
++    # Copy kernel module
++    # install -m 644 ${S}/hrtimer_test.ko ${D}/lib/modules/${KERNEL_VERSION}/extra/
++
++    # copy modules-load
++#    install -d ${D}/etc/modules-load.d/
++#    install -m 644 ${WORKDIR}/hrtimer.conf ${D}/etc/modules-load.d/
++}
++
+-- 
+2.17.1
+

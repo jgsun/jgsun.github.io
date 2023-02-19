@@ -1,0 +1,47 @@
+diff --git a/drivers/firmware/qcom_scm-smc.c b/drivers/firmware/qcom_scm-smc.c
+index 4d42a2a7302d..c1594f204d5a 100644
+--- a/drivers/firmware/qcom_scm-smc.c
++++ b/drivers/firmware/qcom_scm-smc.c
+@@ -405,7 +405,8 @@ static void __qcom_scm_call_do_quirk(const struct arm_smccc_args *smc,
+ {
+ 	ktime_t time;
+ 	ktime_t start_time, end_time;
+-	ktime_t delta;
++	ktime_t ret_time_prev, ret_time;
++	ktime_t delta, delta_max;
+ 	static unsigned int smc_seq = -1;
+ 	unsigned int loop_cnt = 0;
+ 	unsigned long cpu_num = -1, pid_nr = -1;
+@@ -425,6 +426,8 @@ static void __qcom_scm_call_do_quirk(const struct arm_smccc_args *smc,
+ 	pid_nr = task_pid_nr(current);
+ 
+ 	start_time = ktime_get();
++	ret_time_prev = start_time;
++	delta_max = 0;
+ 
+ 	pr_info("SMC[%d] Enter at %ld [us] on CPU: %d PID: %d\n",
+ 		smc_seq, start_time / 1000, cpu_num, pid_nr);
+@@ -440,6 +443,12 @@ static void __qcom_scm_call_do_quirk(const struct arm_smccc_args *smc,
+ 		if (res->a0 == QCOM_SCM_INTERRUPTED)
+ 			a0 = res->a0;
+ 		loop_cnt++;
++
++		/* Check max duration of single smc */
++		ret_time = ktime_get();
++		if ((ret_time - ret_time_prev) > delta_max)
++			delta_max = ret_time - ret_time_prev;
++		ret_time_prev = ret_time;
+ 	} while (res->a0 == QCOM_SCM_INTERRUPTED);
+ #endif
+ 	end_time = ktime_get();
+@@ -451,8 +460,8 @@ static void __qcom_scm_call_do_quirk(const struct arm_smccc_args *smc,
+ 	cpu_num = smp_processor_id();
+ 
+ 	if (delta > smc_min_period_det) {
+-		pr_info("SMC[%d] Return at %ld [us] on CPU: %d PID: %d, took: %lu [us] a[0]: %lx, smc_cnt: %d\n",
+-			smc_seq, end_time / 1000, cpu_num, pid_nr, delta / 1000, smc->a[0], loop_cnt);
++		pr_info("SMC[%d] Return at %ld [us] on CPU: %d PID: %d, took: %lu [us] a[0]: %lx, smc_cnt: %d (Tmax: %lu [us])\n",
++			smc_seq, end_time / 1000, cpu_num, pid_nr, delta / 1000, smc->a[0], loop_cnt, delta_max / 1000);
+ 	}
+ }
+ 
