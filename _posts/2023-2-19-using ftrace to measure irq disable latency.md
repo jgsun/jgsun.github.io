@@ -9,7 +9,6 @@ author: jgsun
 * content
 {:toc}
 
-[TOC]
 # Overview
 某客户使用内核模块实现了一个 1.33ms 的 hrtimer 定时器， 实际测试下来发现定时非常不准，有时候延迟多达 10 多 ms。
 根据 hrtimer 的实现原理，怀疑是中断被异常 disable 过长时间所致。
@@ -18,6 +17,18 @@ author: jgsun
 其次使用  irqsoff tracer 测试 irq disable 的 latency 和 call trace；
 然后使用 Event Tracing 进一步验证了 irq disable 的 latency；
 最后给出结论：内核 printk 且和 hrtimer 运行在同一个 core 是造成 hrtimer 不准的罪魁祸首。
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## hrtimer_test kernel module
 <https://github.com/jgsun/jgsun.github.io/blob/master/doc/patches/0001-hrtimer_test.ko.patch>
