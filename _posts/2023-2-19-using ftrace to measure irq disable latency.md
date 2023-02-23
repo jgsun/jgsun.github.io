@@ -144,8 +144,22 @@ root@sa81x5:/sys/kernel/debug/tracing# echo preemptirq:irq_enable >> set_event
 注意，这里使用 grep 过滤只保存 core6 的 trace 减小文件大小。
 
 后记：根据内核文档  [ftrace - Function Tracer](https://docs.kernel.org/trace/ftrace.html#the-file-system)，使用 tracing_cpumask 可以更加高效达到目的。 
->tracing_cpumask:
+```
+tracing_cpumask:
 This is a mask that lets the user only trace on specified CPUs. The format is a hex string representing the CPUs.
+```
+
+另外发现：可以通过 per_cpu/cpu6/trace 或者 per_cpu/cpu6/trace_pipe 来读取，已经帮忙过滤好了，只输出 core6 的 trace log。
+```
+per_cpu/cpu0/trace:
+
+This is similar to the “trace” file, but it will only display the data specific for the CPU. If written to, it only clears the specific CPU buffer.
+
+per_cpu/cpu0/trace_pipe
+
+This is similar to the “trace_pipe” file, and is a consuming read, but it will only display (and consume) the data specific for the CPU.
+```
+
 
 ## 分析
 Analysis: In function console_unlock, the local cpu irq is disable for about 10ms, which introduce the hrtimer overruns.
